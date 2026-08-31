@@ -1,0 +1,88 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="page-header">
+  <h1>Products</h1>
+  <a routerLink="/admin/products/new">
+    <button pButton icon="pi pi-plus" label="Add Product"></button>
+  </a>
+</div>
+
+<div class="filter-row">
+  <p-selectButton
+    [options]="typeFilterOptions"
+    [(ngModel)]="typeFilter"
+    optionLabel="label"
+    optionValue="value"
+    (onChange)="onTypeFilterChange()"
+  ></p-selectButton>
+</div>
+
+<p-table
+  [value]="products"
+  [loading]="loading"
+  [lazy]="true"
+  [paginator]="true"
+  [rows]="rows"
+  [totalRecords]="totalRecords"
+  (onLazyLoad)="onPageChange($event)"
+  dataKey="id"
+  styleClass="p-datatable-sm"
+>
+  <ng-template pTemplate="header">
+    <tr>
+      <th style="width: 70px"></th>
+      <th>Title</th>
+      <th>Brand</th>
+      <th>Category</th>
+      <th style="width: 100px">Type</th>
+      <th style="width: 110px">Price</th>
+      <th style="width: 90px">Stock</th>
+      <th style="width: 110px">Upcoming</th>
+      <th style="width: 120px">Actions</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-p>
+    <tr>
+      <td>
+        @if (imageUrl(p)) {
+          <img [src]="imageUrl(p)" class="thumb" [alt]="p.title" />
+        }
+      </td>
+      <td>
+        <div class="title-cell-wrap">
+          <span class="product-title-text">{{ p.title }}</span>
+          @if (p.isFlashDeal) {
+            <span class="flash-deal-tag">⚡ Flash Deal</span>
+          }
+        </div>
+      </td>
+      <td>{{ p.brand?.name }}</td>
+      <td>{{ p.category?.name }}</td>
+      <td><p-tag [value]="p.type"></p-tag></td>
+      <td>৳{{ p.price | number }}</td>
+      <td>{{ p.stock }}</td>
+      <td>
+        @if (p.isUpcoming) {
+          <p-tag value="Yes" severity="warning"></p-tag>
+        } @else {
+          <span class="muted">No</span>
+        }
+      </td>
+      <td>
+        <button pButton icon="pi pi-pencil" class="p-button-text p-button-sm" (click)="edit(p)"></button>
+        <button
+          pButton
+          icon="pi pi-trash"
+          class="p-button-text p-button-sm p-button-danger"
+          (click)="confirmDelete(p)"
+        ></button>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td colspan="9" class="empty-cell">No products yet. Click "Add Product" to create one.</td>
+    </tr>
+  </ng-template>
+</p-table>

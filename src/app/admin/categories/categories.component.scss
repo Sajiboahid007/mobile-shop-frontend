@@ -1,0 +1,43 @@
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.type-badge {
+  background: #dbeafe;
+  color: #1d4ed8;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.type-badge.laptop {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.empty-cell {
+  text-align: center;
+  color: #9ca3af;
+  padding: 2rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+
+  label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #374151;
+  }
+}
+
+.w-full {
+  width: 100%;
+}

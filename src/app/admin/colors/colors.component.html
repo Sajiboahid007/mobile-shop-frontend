@@ -1,0 +1,111 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="page-header">
+  <div>
+    <h1>Product Colors</h1>
+    <p class="subtitle">Manage colors available for smartphones and laptops</p>
+  </div>
+  <button pButton icon="pi pi-plus" label="Add Color" (click)="openNew()"></button>
+</div>
+
+<p-table [value]="colors" [loading]="loading" dataKey="id" styleClass="p-datatable-sm">
+  <ng-template pTemplate="header">
+    <tr>
+      <th style="width: 80px">Swatch</th>
+      <th>Color Name</th>
+      <th style="width: 140px">Hex Code</th>
+      <th style="width: 120px">Products</th>
+      <th style="width: 140px">Actions</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-color>
+    <tr>
+      <td>
+        <span
+          class="color-circle"
+          [style.backgroundColor]="color.hexCode || '#cccccc'"
+          [title]="color.name"
+        ></span>
+      </td>
+      <td>
+        <strong>{{ color.name }}</strong>
+      </td>
+      <td>
+        <span class="hex-badge">{{ color.hexCode || 'N/A' }}</span>
+      </td>
+      <td>{{ color._count?.products || 0 }}</td>
+      <td>
+        <button pButton icon="pi pi-pencil" class="p-button-text p-button-sm" (click)="openEdit(color)"></button>
+        <button
+          pButton
+          icon="pi pi-trash"
+          class="p-button-text p-button-sm p-button-danger"
+          (click)="confirmDelete(color)"
+        ></button>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td colspan="5" class="empty-cell">No colors added yet. Click "Add Color" to create one.</td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<p-dialog
+  [(visible)]="dialogVisible"
+  [header]="editingColor ? 'Edit Color' : 'Add New Color'"
+  [modal]="true"
+  [style]="{ width: '450px' }"
+>
+  <div class="form-field">
+    <label for="colorName">Color Name *</label>
+    <input
+      id="colorName"
+      pInputText
+      [(ngModel)]="formName"
+      placeholder="e.g. Titanium Black, Deep Purple"
+      class="w-full"
+    />
+  </div>
+
+  <div class="form-field">
+    <label>Color Swatch &amp; Hex Code</label>
+    <div class="color-picker-row">
+      <input type="color" [(ngModel)]="formHex" class="native-picker" />
+      <input
+        pInputText
+        [(ngModel)]="formHex"
+        placeholder="#1c1c1e"
+        class="hex-input"
+      />
+      <div
+        class="live-swatch"
+        [style.backgroundColor]="formHex"
+        [title]="formName || 'Color preview'"
+      ></div>
+    </div>
+  </div>
+
+  <div class="form-field">
+    <label>Popular Presets</label>
+    <div class="preset-grid">
+      @for (preset of presetColors; track preset) {
+        <button
+          type="button"
+          class="preset-swatch"
+          [class.active]="formHex === preset"
+          [style.backgroundColor]="preset"
+          (click)="selectPreset(preset)"
+          [title]="preset"
+        ></button>
+      }
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="dialogVisible = false"></button>
+    <button pButton label="Save Color" icon="pi pi-check" [loading]="saving" (click)="save()"></button>
+  </ng-template>
+</p-dialog>

@@ -1,0 +1,290 @@
+<p-toast></p-toast>
+
+<div class="admin-page-container">
+  <div class="page-header">
+    <div>
+      <h2>Order Management</h2>
+      <p class="subtitle">Real-time order fulfillment, customer invoices, and shipment tracking</p>
+    </div>
+    <div class="header-right">
+      <button pButton icon="pi pi-refresh" label="Refresh" class="p-button-outlined p-button-sm" [loading]="loading" (click)="loadOrders()"></button>
+    </div>
+  </div>
+
+  <!-- KPI Metrics Cards Row -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-icon-box icon-total">
+        <i class="pi pi-shopping-bag"></i>
+      </div>
+      <div class="kpi-info">
+        <span class="kpi-label">Total Orders</span>
+        <h3 class="kpi-val">{{ totalRecords }}</h3>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-box icon-pending">
+        <i class="pi pi-clock"></i>
+      </div>
+      <div class="kpi-info">
+        <span class="kpi-label">Pending Orders</span>
+        <h3 class="kpi-val text-amber">{{ pendingCount }}</h3>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-box icon-shipped">
+        <i class="pi pi-truck"></i>
+      </div>
+      <div class="kpi-info">
+        <span class="kpi-label">Shipped / In Transit</span>
+        <h3 class="kpi-val text-indigo">{{ processingCount }}</h3>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon-box icon-delivered">
+        <i class="pi pi-check-circle"></i>
+      </div>
+      <div class="kpi-info">
+        <span class="kpi-label">Completed Orders</span>
+        <h3 class="kpi-val text-emerald">{{ deliveredCount }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters & Search Toolbar -->
+  <div class="filters-bar">
+    <div class="search-input">
+      <i class="pi pi-search"></i>
+      <input
+        type="text"
+        pInputText
+        [(ngModel)]="searchQuery"
+        placeholder="Search by order #, customer, phone, city..."
+        (keyup.enter)="loadOrders()"
+      />
+    </div>
+
+    <p-dropdown
+      [options]="statusOptions"
+      [(ngModel)]="selectedStatus"
+      (onChange)="loadOrders()"
+      optionLabel="label"
+      optionValue="value"
+      styleClass="status-dropdown"
+    ></p-dropdown>
+
+    <button pButton label="Filter" icon="pi pi-filter" class="p-button-outlined" (click)="loadOrders()"></button>
+  </div>
+
+  <!-- Professional Orders Data Table -->
+  <div class="table-card">
+    <p-table [value]="orders" [loading]="loading" [tableStyle]="{ 'min-width': '60rem' }" styleClass="p-datatable-sm">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 140px">Order Ref</th>
+          <th>Customer</th>
+          <th>Contact &amp; Destination</th>
+          <th>Total Amount</th>
+          <th>Payment</th>
+          <th>Fulfillment Status</th>
+          <th>Order Date</th>
+          <th style="width: 130px; text-align: right">Action</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-order>
+        <tr class="order-table-row">
+          <td>
+            <div class="order-code-pill" (click)="viewOrder(order)" title="Click to manage order">
+              <span>{{ order.orderNumber }}</span>
+            </div>
+          </td>
+          <td>
+            <div class="customer-cell">
+              <div class="customer-avatar">{{ getInitials(order.customerName) }}</div>
+              <div class="customer-info-text">
+                <span class="name">{{ order.customerName }}</span>
+                @if (order.customerEmail) {
+                  <small class="email">{{ order.customerEmail }}</small>
+                }
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class="contact-cell">
+              <span class="phone"><i class="pi pi-phone"></i> {{ order.customerPhone }}</span>
+              <span class="city-tag">{{ order.city }}</span>
+            </div>
+          </td>
+          <td>
+            <div class="price-cell">
+              <strong class="price-val">৳{{ order.totalAmount | number }}</strong>
+              <span class="items-count">{{ order.items.length }} {{ order.items.length === 1 ? 'item' : 'items' }}</span>
+            </div>
+          </td>
+          <td>
+            <span class="payment-method-chip" [class.cod]="order.paymentMethod === 'COD'">
+              <i class="pi pi-wallet"></i> {{ order.paymentMethod }}
+            </span>
+          </td>
+          <td>
+            <span class="status-badge" [ngClass]="order.orderStatus.toLowerCase()">
+              <span class="status-dot"></span>
+              {{ order.orderStatus }}
+            </span>
+          </td>
+          <td>
+            <div class="date-cell">
+              <span class="date-main">{{ order.createdAt | date: 'mediumDate' }}</span>
+              <small class="date-time">{{ order.createdAt | date: 'shortTime' }}</small>
+            </div>
+          </td>
+          <td style="text-align: right">
+            <button
+              pButton
+              label="Manage"
+              icon="pi pi-sliders-h"
+              class="p-button-outlined p-button-sm manage-btn"
+              (click)="viewOrder(order)"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8" class="text-center py-5 text-muted empty-state-cell">
+            <i class="pi pi-inbox empty-icon"></i>
+            <p>No orders found matching your active filter criteria.</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<!-- Order Management & Invoice Dialog -->
+<p-dialog
+  [(visible)]="detailModalOpen"
+  [modal]="true"
+  [style]="{ width: '92vw', maxWidth: '780px' }"
+  [draggable]="false"
+  header="Order Details &amp; Fulfillment"
+>
+  @if (selectedOrder) {
+    <div class="order-modal-body">
+      <!-- Order Top Summary Bar -->
+      <div class="order-top-banner">
+        <div>
+          <span class="banner-subtitle">Order Reference Number</span>
+          <h3 class="order-num">{{ selectedOrder.orderNumber }}</h3>
+          <div class="order-date-tag">
+            <i class="pi pi-calendar"></i> Placed on {{ selectedOrder.createdAt | date: 'medium' }}
+          </div>
+        </div>
+
+        <div class="banner-right-actions">
+          <span class="status-badge-lg" [ngClass]="selectedOrder.orderStatus.toLowerCase()">
+            {{ selectedOrder.orderStatus }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Customer & Shipping Information -->
+      <div class="order-section">
+        <div class="section-title-row">
+          <h4><i class="pi pi-user"></i> Customer &amp; Delivery Information</h4>
+          <span class="pay-method-badge"><i class="pi pi-credit-card"></i> {{ selectedOrder.paymentMethod }}</span>
+        </div>
+
+        <div class="info-grid">
+          <div><label>Customer Name:</label> <strong>{{ selectedOrder.customerName }}</strong></div>
+          <div><label>Contact Phone:</label> <strong>{{ selectedOrder.customerPhone }}</strong></div>
+          @if (selectedOrder.customerEmail) {
+            <div><label>Email Address:</label> <span>{{ selectedOrder.customerEmail }}</span></div>
+          }
+          <div><label>Destination City:</label> <span>{{ selectedOrder.city }} {{ selectedOrder.postalCode || '' }}</span></div>
+          <div class="full"><label>Shipping Address:</label> <span>{{ selectedOrder.shippingAddress }}</span></div>
+          @if (selectedOrder.notes) {
+            <div class="full notes-row"><label>Customer Note:</label> <em>"{{ selectedOrder.notes }}"</em></div>
+          }
+        </div>
+      </div>
+
+      <!-- Itemized Products List -->
+      <div class="order-section">
+        <h4><i class="pi pi-box"></i> Order Items ({{ selectedOrder.items.length }})</h4>
+        <div class="items-list">
+          @for (item of selectedOrder.items; track item.id) {
+            <div class="item-row">
+              <div class="item-details">
+                <strong class="item-title">{{ item.productTitle }}</strong>
+                <div class="item-meta">
+                  @if (item.color) {
+                    <span class="meta-chip"><i class="pi pi-palette"></i> {{ item.color }}</span>
+                  }
+                  @if (item.storage) {
+                    <span class="meta-chip"><i class="pi pi-database"></i> {{ item.storage }}</span>
+                  }
+                  <span class="meta-chip"><i class="pi pi-tag"></i> ৳{{ item.price | number }} &times; {{ item.quantity }}</span>
+                </div>
+              </div>
+              <div class="item-total">
+                ৳{{ (item.price * item.quantity) | number }}
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Financial Calculation Summary -->
+      <div class="order-section totals-section">
+        <div class="tot-row"><span>Subtotal:</span> <span>৳{{ selectedOrder.subtotal | number }}</span></div>
+        @if (selectedOrder.discount > 0) {
+          <div class="tot-row discount"><span>Applied Promo Discount:</span> <span>-৳{{ selectedOrder.discount | number }}</span></div>
+        }
+        <div class="tot-row"><span>Delivery &amp; Handling:</span> <span>৳{{ selectedOrder.shippingFee | number }}</span></div>
+        <div class="tot-row grand-total"><span>Grand Total:</span> <strong>৳{{ selectedOrder.totalAmount | number }}</strong></div>
+      </div>
+
+      <!-- Fulfillment Status Changer -->
+      <div class="order-section status-management-section">
+        <h4><i class="pi pi-sliders-h"></i> Update Fulfillment Status</h4>
+        <div class="status-change-row">
+          <select [(ngModel)]="modalSelectedStatus" class="status-modal-select">
+            <option value="PENDING">PENDING (Awaiting Confirmation)</option>
+            <option value="PROCESSING">PROCESSING (Packaging / In Preparation)</option>
+            <option value="SHIPPED">SHIPPED (Handed over to Courier)</option>
+            <option value="DELIVERED">DELIVERED (Successfully Completed)</option>
+            <option value="CANCELLED">CANCELLED (Order Voided)</option>
+          </select>
+          <button
+            pButton
+            label="Save Status"
+            icon="pi pi-check"
+            class="p-button-sm p-button-success"
+            [disabled]="modalSelectedStatus === selectedOrder.orderStatus"
+            (click)="saveModalStatus()"
+          ></button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <ng-template pTemplate="footer">
+    <div class="modal-footer-actions">
+      <!-- The Single, Dedicated Invoice PDF Action -->
+      <button
+        pButton
+        icon="pi pi-print"
+        label="Print Invoice (PDF)"
+        class="p-button-primary invoice-single-btn"
+        (click)="selectedOrder && generateInvoicePdf(selectedOrder)"
+      ></button>
+      <button pButton label="Close" class="p-button-text" (click)="detailModalOpen = false"></button>
+    </div>
+  </ng-template>
+</p-dialog>

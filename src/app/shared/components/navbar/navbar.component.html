@@ -1,0 +1,172 @@
+<header class="navbar">
+  <div class="navbar-inner page-container">
+    <a routerLink="/" class="brand">
+      <div class="logo-icon">
+        <i class="pi pi-mobile"></i>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">MobileShop</span>
+        <span class="brand-tagline">Premium Tech Hub</span>
+      </div>
+    </a>
+
+    <!-- Live Desktop Search Box -->
+    <div class="search-box hide-mobile">
+      <i class="pi pi-search search-icon"></i>
+      <input
+        type="text"
+        pInputText
+        placeholder="Search smartphones, laptops, brands..."
+        [(ngModel)]="searchTerm"
+        (input)="onSearchInput()"
+        (keyup.enter)="search()"
+      />
+      @if (searchTerm) {
+        <button class="clear-search-btn" (click)="searchTerm = ''; searchResults = []; searchDropdownOpen = false">
+          <i class="pi pi-times"></i>
+        </button>
+      }
+      <button pButton icon="pi pi-search" class="p-button-sm search-btn" (click)="search()"></button>
+
+      <!-- Autocomplete Dropdown -->
+      @if (searchDropdownOpen && searchResults.length > 0) {
+        <div class="search-suggestions-dropdown">
+          <div class="dropdown-header">
+            <span>Matching Devices</span>
+            <span class="view-all-link" (click)="search()">View all results &rarr;</span>
+          </div>
+          @for (p of searchResults; track p.id) {
+            <div class="suggestion-row" (click)="selectProduct(p)">
+              <div class="sugg-thumb">
+                <img [src]="getImage(p)" [alt]="p.title" />
+              </div>
+              <div class="sugg-info">
+                <span class="sugg-title">{{ p.title }}</span>
+                <span class="sugg-brand">{{ p.brand.name }} &middot; {{ p.category.name }}</span>
+              </div>
+              <div class="sugg-price">
+                <span>৳{{ (p.discountPrice || p.price) | number }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <nav class="nav-links hide-mobile">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        <i class="pi pi-home"></i> Home
+      </a>
+      <a routerLink="/upcoming" routerLinkActive="active">
+        <i class="pi pi-clock"></i> Upcoming
+      </a>
+      <a routerLink="/track-order" routerLinkActive="active" class="track-link">
+        <i class="pi pi-compass"></i> Track Order
+      </a>
+    </nav>
+
+    <!-- Header Action Badges -->
+    <div class="header-actions">
+      <!-- Compare Button -->
+      <a
+        routerLink="/compare"
+        class="action-badge-btn hide-mobile"
+        pTooltip="Compare Devices"
+        tooltipPosition="bottom"
+      >
+        <i class="pi pi-sliders-h"></i>
+        @if (compare.count() > 0) {
+          <span class="badge-count">{{ compare.count() }}</span>
+        }
+      </a>
+
+      <!-- Wishlist Button -->
+      <a
+        routerLink="/wishlist"
+        class="action-badge-btn hide-mobile"
+        pTooltip="Saved Wishlist"
+        tooltipPosition="bottom"
+      >
+        <i class="pi pi-heart"></i>
+        @if (wishlist.count() > 0) {
+          <span class="badge-count">{{ wishlist.count() }}</span>
+        }
+      </a>
+
+      <!-- Shopping Bag Button -->
+      <button
+        class="cart-trigger-btn"
+        (click)="cart.open()"
+        pTooltip="Shopping Bag"
+        tooltipPosition="bottom"
+      >
+        <i class="pi pi-shopping-bag"></i>
+        <span class="cart-total-label hide-mobile">৳{{ cart.grandTotal() | number }}</span>
+        @if (cart.itemCount() > 0) {
+          <span class="badge-count cart-count">{{ cart.itemCount() }}</span>
+        }
+      </button>
+
+      <!-- Admin Portal / Login -->
+      @if (auth.isLoggedIn()) {
+        <a routerLink="/admin/dashboard" class="admin-pill hide-mobile">
+          <i class="pi pi-shield"></i> Admin
+        </a>
+      } @else {
+        <a routerLink="/admin/login" class="admin-login-link hide-mobile" title="Admin Portal">
+          <i class="pi pi-lock"></i>
+        </a>
+      }
+
+      <button
+        pButton
+        icon="pi pi-bars"
+        class="p-button-text hide-desktop menu-toggle"
+        (click)="mobileMenuOpen = true"
+      ></button>
+    </div>
+  </div>
+
+  <!-- Mobile search bar -->
+  <div class="search-box-mobile hide-desktop">
+    <div class="mobile-search-inner">
+      <i class="pi pi-search search-icon"></i>
+      <input
+        type="text"
+        pInputText
+        placeholder="Search smartphones, laptops..."
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="search()"
+      />
+      <button pButton icon="pi pi-search" class="p-button-sm" (click)="search()"></button>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile Navigation Drawer -->
+<p-sidebar [(visible)]="mobileMenuOpen" position="right" [baseZIndex]="10000">
+  <div class="mobile-drawer-header">
+    <i class="pi pi-mobile"></i>
+    <h3>MobileShop</h3>
+  </div>
+
+  <nav class="mobile-nav">
+    <a routerLink="/" (click)="closeMenu()"><i class="pi pi-home"></i> Home</a>
+    <a routerLink="/upcoming" (click)="closeMenu()"><i class="pi pi-clock"></i> Upcoming Phones</a>
+    <a routerLink="/compare" (click)="closeMenu()"><i class="pi pi-sliders-h"></i> Compare Devices ({{ compare.count() }})</a>
+    <a routerLink="/wishlist" (click)="closeMenu()"><i class="pi pi-heart"></i> Saved Wishlist ({{ wishlist.count() }})</a>
+    <a routerLink="/track-order" (click)="closeMenu()"><i class="pi pi-compass"></i> Track My Order</a>
+
+    <div class="drawer-divider"></div>
+
+    @if (auth.isLoggedIn()) {
+      <a routerLink="/admin/dashboard" (click)="closeMenu()" class="admin-link">
+        <i class="pi pi-shield"></i> Admin Dashboard
+      </a>
+    } @else {
+      <a routerLink="/admin/login" (click)="closeMenu()" class="admin-link">
+        <i class="pi pi-lock"></i> Admin Portal
+      </a>
+    }
+  </nav>
+</p-sidebar>

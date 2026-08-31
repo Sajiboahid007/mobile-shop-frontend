@@ -1,0 +1,32 @@
+.upcoming-page {
+  padding: 1.5rem 1rem 3rem;
+}
+
+.subtitle {
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
+.spinner-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 4rem 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 0;
+  color: #9ca3af;
+
+  i {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.25rem;
+}

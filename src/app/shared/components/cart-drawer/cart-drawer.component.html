@@ -1,0 +1,349 @@
+<p-sidebar
+  [visible]="cart.isOpen()"
+  (visibleChange)="cart.isOpen.set($event)"
+  position="right"
+  [baseZIndex]="10000"
+  styleClass="cart-sidebar-drawer"
+>
+  <ng-template pTemplate="header">
+    <div class="cart-header">
+      <div class="header-title">
+        <i class="pi pi-shopping-bag cart-icon"></i>
+        <h3>Your Shopping Bag</h3>
+      </div>
+      <span class="items-badge">{{ cart.itemCount() }} items</span>
+    </div>
+  </ng-template>
+
+  <div class="cart-content">
+    <!-- Free Shipping Progress -->
+    <div class="shipping-progress-box">
+      @if (cart.shippingFee() === 0) {
+        <div class="shipping-unlocked">
+          <i class="pi pi-check-circle"></i>
+          <span>🎉 You unlocked <strong>FREE Express Shipping</strong>!</span>
+        </div>
+      } @else {
+        <div class="shipping-needed">
+          <i class="pi pi-truck"></i>
+          <span>Add <strong>৳{{ cart.freeShippingRemaining() | number }}</strong> more for <strong>Free Delivery</strong></span>
+        </div>
+      }
+      <p-progressBar [value]="cart.freeShippingProgress()" [showValue]="false" styleClass="shipping-bar"></p-progressBar>
+    </div>
+
+    @if (cart.items().length === 0) {
+      <div class="empty-cart">
+        <div class="empty-icon-wrap">
+          <i class="pi pi-shopping-cart"></i>
+        </div>
+        <h4>Your bag is currently empty</h4>
+        <p>Explore the latest smartphones and deals to fill it up.</p>
+        <button pButton label="Start Shopping" icon="pi pi-arrow-right" class="p-button-rounded shop-now-btn" (click)="cart.close()"></button>
+      </div>
+    } @else {
+      <!-- Item list -->
+      <div class="items-list">
+        @for (item of cart.items(); track item.id) {
+          <div class="cart-item-card">
+            <div class="item-img-wrap">
+              @if (item.image) {
+                <img [src]="item.image" [alt]="item.title" />
+              } @else {
+                <i class="pi pi-mobile fallback-img"></i>
+              }
+            </div>
+
+            <div class="item-details">
+              <div class="item-top">
+                <a [routerLink]="['/products', item.slug]" (click)="cart.close()" class="item-title">{{ item.title }}</a>
+                <button class="remove-btn" (click)="cart.removeItem(item.id)" title="Remove item">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </div>
+
+              <div class="item-variants">
+                @if (item.color) {
+                  <span class="variant-pill color-pill"><i class="pi pi-palette"></i> {{ item.color }}</span>
+                }
+                @if (item.storage) {
+                  <span class="variant-pill storage-pill"><i class="pi pi-database"></i> {{ item.storage }}</span>
+                }
+              </div>
+
+              <div class="item-bottom">
+                <div class="qty-stepper">
+                  <button class="qty-btn" (click)="cart.updateQuantity(item.id, item.quantity - 1)">
+                    <i class="pi pi-minus"></i>
+                  </button>
+                  <span class="qty-num">{{ item.quantity }}</span>
+                  <button class="qty-btn" (click)="cart.updateQuantity(item.id, item.quantity + 1)">
+                    <i class="pi pi-plus"></i>
+                  </button>
+                </div>
+
+                <div class="item-price">
+                  <span>৳{{ (item.price * item.quantity) | number }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <ng-template pTemplate="footer">
+    @if (cart.items().length > 0) {
+      <div class="cart-footer">
+        <!-- Promo Coupon box -->
+        <div class="coupon-section">
+          @if (cart.appliedCoupon()) {
+            <div class="applied-coupon-card">
+              <div class="coupon-info">
+                <i class="pi pi-tag"></i>
+                <div>
+                  <strong>{{ cart.appliedCoupon()?.code }}</strong>
+                  <p class="coupon-desc">{{ cart.appliedCoupon()?.description }}</p>
+                </div>
+              </div>
+              <button class="remove-coupon-btn" (click)="removeCoupon()"><i class="pi pi-times"></i></button>
+            </div>
+          } @else {
+            <div class="coupon-input-row">
+              <input
+                type="text"
+                pInputText
+                [(ngModel)]="couponInput"
+                placeholder="Enter promo code (e.g. MOBILE10)"
+                (keyup.enter)="applyCoupon()"
+              />
+              <button pButton label="Apply" class="p-button-outlined p-button-sm" (click)="applyCoupon()"></button>
+            </div>
+            <div class="coupon-hints">
+              <span>Try: <code (click)="couponInput = 'MOBILE10'">MOBILE10</code> (10% off) or <code (click)="couponInput = 'SAVE5'">SAVE5</code> (5% off)</span>
+            </div>
+          }
+        </div>
+
+        <!-- Summary -->
+        <div class="summary-breakdown">
+          <div class="sum-row">
+            <span>Subtotal</span>
+            <span>৳{{ cart.subtotal() | number }}</span>
+          </div>
+
+          @if (cart.discountAmount() > 0) {
+            <div class="sum-row discount">
+              <span>Discount ({{ cart.appliedCoupon()?.code }})</span>
+              <span>-৳{{ cart.discountAmount() | number }}</span>
+            </div>
+          }
+
+          <div class="sum-row">
+            <span>Delivery Fee</span>
+            <span>
+              @if (cart.shippingFee() === 0) {
+                <span class="free-tag">FREE</span>
+              } @else {
+                ৳{{ cart.shippingFee() | number }}
+              }
+            </span>
+          </div>
+
+          <div class="sum-row total">
+            <span>Total Payable</span>
+            <span class="grand-total-price">৳{{ cart.grandTotal() | number }}</span>
+          </div>
+        </div>
+
+        <button
+          pButton
+          label="Proceed to Checkout"
+          icon="pi pi-shield"
+          class="checkout-action-btn p-button-lg p-button-rounded"
+          (click)="proceedToCheckout()"
+        ></button>
+      </div>
+    }
+  </ng-template>
+</p-sidebar>
+
+<!-- Checkout Modal -->
+<p-dialog
+  header="Secure Checkout"
+  [(visible)]="checkoutModalOpen"
+  [modal]="true"
+  [style]="{ width: '90vw', maxWidth: '650px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="checkout-modal-body">
+    <div class="checkout-summary-mini">
+      <div class="mini-stats">
+        <span><strong>{{ cart.itemCount() }}</strong> Items</span>
+        <span>Total: <strong>৳{{ cart.grandTotal() | number }}</strong></span>
+      </div>
+    </div>
+
+    <form (ngSubmit)="submitOrder()" class="checkout-form">
+      <h4><i class="pi pi-user"></i> Customer &amp; Delivery Information</h4>
+
+      <div class="form-grid">
+        <div class="form-field full">
+          <label>Full Name *</label>
+          <input type="text" pInputText [(ngModel)]="checkoutForm.customerName" name="customerName" placeholder="e.g. Sajib Oahid" required />
+        </div>
+
+        <div class="form-field half">
+          <label>Phone Number *</label>
+          <input type="tel" pInputText [(ngModel)]="checkoutForm.customerPhone" name="customerPhone" placeholder="01XXXXXXXXX" required />
+        </div>
+
+        <div class="form-field half">
+          <label>Email Address</label>
+          <input type="email" pInputText [(ngModel)]="checkoutForm.customerEmail" name="customerEmail" placeholder="yourname@gmail.com" />
+        </div>
+
+        <div class="form-field half">
+          <label>City / Division *</label>
+          <select class="custom-select" [(ngModel)]="checkoutForm.city" name="city">
+            @for (city of cityOptions; track city) {
+              <option [value]="city">{{ city }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-field half">
+          <label>Postal Code</label>
+          <input type="text" pInputText [(ngModel)]="checkoutForm.postalCode" name="postalCode" placeholder="1212" />
+        </div>
+
+        <div class="form-field full">
+          <label>Complete Delivery Address *</label>
+          <textarea
+            pInputTextarea
+            [(ngModel)]="checkoutForm.shippingAddress"
+            name="shippingAddress"
+            rows="2"
+            placeholder="House/Apartment #, Road #, Area, Landmark"
+            required
+          ></textarea>
+        </div>
+
+        <div class="form-field full">
+          <label>Order Notes / Delivery Instructions (Optional)</label>
+          <input type="text" pInputText [(ngModel)]="checkoutForm.notes" name="notes" placeholder="e.g. Call before delivery, deliver in afternoon" />
+        </div>
+      </div>
+
+      <h4><i class="pi pi-credit-card"></i> Payment Method</h4>
+      <div class="payment-options">
+        <label class="payment-card" [class.selected]="checkoutForm.paymentMethod === 'COD'">
+          <input type="radio" [(ngModel)]="checkoutForm.paymentMethod" name="paymentMethod" value="COD" />
+          <div class="pay-info">
+            <span class="pay-title"><i class="pi pi-money-bill"></i> Cash on Delivery (COD)</span>
+            <span class="pay-desc">Pay with cash when your package arrives at your doorstep</span>
+          </div>
+        </label>
+
+        <label class="payment-card" [class.selected]="checkoutForm.paymentMethod === 'BKASH'">
+          <input type="radio" [(ngModel)]="checkoutForm.paymentMethod" name="paymentMethod" value="BKASH" />
+          <div class="pay-info">
+            <span class="pay-title"><i class="pi pi-wallet"></i> bKash / Nagad Instant Mobile Payment</span>
+            <span class="pay-desc">Fast, secure instant confirmation via mobile wallet</span>
+          </div>
+        </label>
+
+        <label class="payment-card" [class.selected]="checkoutForm.paymentMethod === 'CARD'">
+          <input type="radio" [(ngModel)]="checkoutForm.paymentMethod" name="paymentMethod" value="CARD" />
+          <div class="pay-info">
+            <span class="pay-title"><i class="pi pi-credit-card"></i> Credit / Debit Card (Visa, Mastercard)</span>
+            <span class="pay-desc">Pay securely using your bank card or 0% EMI</span>
+          </div>
+        </label>
+      </div>
+
+      <div class="checkout-actions">
+        <button
+          type="button"
+          pButton
+          label="Back to Bag"
+          class="p-button-text"
+          (click)="checkoutModalOpen = false; cart.open()"
+        ></button>
+        <button
+          type="submit"
+          pButton
+          [label]="submittingOrder ? 'Placing Order...' : 'Confirm & Place Order (৳' + (cart.grandTotal() | number) + ')'"
+          icon="pi pi-check"
+          [loading]="submittingOrder"
+          class="p-button-success p-button-lg place-order-btn"
+        ></button>
+      </div>
+    </form>
+  </div>
+</p-dialog>
+
+<!-- Order Success Modal -->
+<p-dialog
+  header="Order Placed Successfully! 🎉"
+  [(visible)]="orderSuccessModalOpen"
+  [modal]="true"
+  [style]="{ width: '90vw', maxWidth: '540px' }"
+  [closable]="false"
+>
+  @if (createdOrder) {
+    <div class="order-success-content">
+      <div class="success-icon-wrap">
+        <i class="pi pi-check"></i>
+      </div>
+      <h3>Thank you, {{ createdOrder.customerName }}!</h3>
+      <p class="order-confirmed-text">Your order has been confirmed and is being processed by our store team.</p>
+
+      <div class="tracking-pill-box">
+        <span class="track-label">Your Order Tracking Code</span>
+        <div class="track-code-display">
+          <code>{{ createdOrder.orderNumber }}</code>
+        </div>
+        <p class="track-hint">Save this code to track your delivery status anytime!</p>
+      </div>
+
+      <div class="order-quick-summary">
+        <div class="row">
+          <span>Items Ordered:</span>
+          <strong>{{ createdOrder.items.length }} device(s)</strong>
+        </div>
+        <div class="row">
+          <span>Total Amount:</span>
+          <strong>৳{{ createdOrder.totalAmount | number }}</strong>
+        </div>
+        <div class="row">
+          <span>Payment Method:</span>
+          <strong>{{ createdOrder.paymentMethod }}</strong>
+        </div>
+        <div class="row">
+          <span>Delivery To:</span>
+          <span>{{ createdOrder.shippingAddress }}, {{ createdOrder.city }}</span>
+        </div>
+      </div>
+
+      <div class="success-actions">
+        <button
+          pButton
+          label="Track My Order"
+          icon="pi pi-compass"
+          class="p-button-primary p-button-rounded"
+          (click)="goToTrackOrder()"
+        ></button>
+        <button
+          pButton
+          label="Continue Shopping"
+          icon="pi pi-shopping-bag"
+          class="p-button-outlined p-button-rounded"
+          (click)="orderSuccessModalOpen = false"
+        ></button>
+      </div>
+    </div>
+  }
+</p-dialog>

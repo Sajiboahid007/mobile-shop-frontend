@@ -1,0 +1,119 @@
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .subtitle {
+    margin: 0.25rem 0 0;
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+}
+
+.color-circle {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  vertical-align: middle;
+}
+
+.hex-badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  font-family: monospace;
+  font-size: 0.8rem;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  color: #334155;
+}
+
+.empty-cell {
+  text-align: center;
+  color: #9ca3af;
+  padding: 2rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+
+  label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #374151;
+  }
+}
+
+.color-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  .native-picker {
+    width: 44px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    cursor: pointer;
+    background: transparent;
+  }
+
+  .hex-input {
+    flex: 1;
+    font-family: monospace;
+    text-transform: uppercase;
+  }
+
+  .live-swatch {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.preset-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  .preset-swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid #e5e7eb;
+    cursor: pointer;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+    padding: 0;
+
+    &:hover {
+      transform: scale(1.15);
+      border-color: #3b82f6;
+    }
+
+    &.active {
+      transform: scale(1.15);
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+    }
+  }
+}
+
+.w-full {
+  width: 100%;
+}

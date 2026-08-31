@@ -1,0 +1,32 @@
+<div class="login-page">
+  <form class="login-card" (ngSubmit)="submit()">
+    <div class="login-header">
+      <i class="pi pi-mobile"></i>
+      <h2>MobileShop Admin</h2>
+      <p>Sign in to manage your catalog</p>
+    </div>
+
+    @if (error) {
+      <p-message severity="error" [text]="error" styleClass="w-full"></p-message>
+    }
+
+    <label for="email">Email</label>
+    <input id="email" type="email" pInputText [(ngModel)]="email" name="email" placeholder="admin@mobileshop.com" />
+
+    <label for="password">Password</label>
+    <p-password
+      inputId="password"
+      [(ngModel)]="password"
+      name="password"
+      [feedback]="false"
+      [toggleMask]="true"
+      placeholder="Your password"
+      styleClass="w-full"
+      inputStyleClass="w-full"
+    ></p-password>
+
+    <button pButton type="submit" label="Login" icon="pi pi-sign-in" class="w-full login-btn" [loading]="loading"></button>
+
+    <a routerLink="/" class="back-home"><i class="pi pi-arrow-left"></i> Back to shop</a>
+  </form>
+</div>

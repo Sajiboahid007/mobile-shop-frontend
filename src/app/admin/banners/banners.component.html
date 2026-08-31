@@ -1,0 +1,256 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="page-header">
+  <div>
+    <h1>Hero Showcase Banners</h1>
+    <p class="subtitle">Manage homepage hero carousel slides, promo codes, and promotional banners</p>
+  </div>
+  <button pButton icon="pi pi-plus" label="Add Banner" (click)="openNew()"></button>
+</div>
+
+<p-table [value]="banners" [loading]="loading" dataKey="id" styleClass="p-datatable-sm">
+  <ng-template pTemplate="header">
+    <tr>
+      <th style="width: 140px">Preview</th>
+      <th>Banner Title &amp; Details</th>
+      <th style="width: 130px">Promo Tag</th>
+      <th style="width: 90px">Order</th>
+      <th style="width: 100px">Status</th>
+      <th style="width: 130px">Actions</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-banner>
+    <tr>
+      <td>
+        <div
+          class="table-preview-card"
+          [style.background]="banner.bgGradient || 'linear-gradient(135deg, #0f172a, #312e81)'"
+        >
+          @if (banner.image) {
+            <img [src]="fileBase + banner.image" [alt]="banner.title" class="preview-img" />
+          } @else {
+            <i class="pi pi-images no-img-icon"></i>
+          }
+        </div>
+      </td>
+      <td>
+        <div class="banner-info-cell">
+          <div class="title-row">
+            @if (banner.badge) {
+              <span class="badge-pill">{{ banner.badge }}</span>
+            }
+            <strong>{{ banner.title }}</strong>
+          </div>
+          @if (banner.tagline) {
+            <small class="tagline-text">{{ banner.tagline }}</small>
+          }
+        </div>
+      </td>
+      <td>
+        @if (banner.phoneTag) {
+          <span class="tag-badge">{{ banner.phoneTag }}</span>
+        } @else {
+          <span class="text-muted">-</span>
+        }
+      </td>
+      <td>
+        <span class="order-badge">#{{ banner.order || 0 }}</span>
+      </td>
+      <td>
+        <p-tag
+          [value]="banner.isActive ? 'Active' : 'Draft'"
+          [severity]="banner.isActive ? 'success' : 'warning'"
+        ></p-tag>
+      </td>
+      <td>
+        <button pButton icon="pi pi-pencil" class="p-button-text p-button-sm" (click)="openEdit(banner)"></button>
+        <button
+          pButton
+          icon="pi pi-trash"
+          class="p-button-text p-button-sm p-button-danger"
+          (click)="confirmDelete(banner)"
+        ></button>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td colspan="6" class="empty-cell">No banners yet. Click "Add Banner" to create your first hero carousel slide.</td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<!-- Create / Edit Banner Dialog -->
+<p-dialog
+  [(visible)]="dialogVisible"
+  [header]="editingBanner ? 'Edit Hero Banner' : 'Create New Hero Banner'"
+  [modal]="true"
+  [style]="{ width: '700px' }"
+>
+  <!-- Live Interactive Preview Card -->
+  <div class="live-preview-box" [style.background]="formBgGradient">
+    <div class="preview-content">
+      @if (formBadge) {
+        <span class="preview-badge"><i class="pi pi-bolt"></i> {{ formBadge }}</span>
+      }
+      <h3 class="preview-title">{{ formTitle || 'Banner Headline' }}</h3>
+      <p class="preview-tagline">{{ formTagline || 'Engaging subtitle / marketing tagline' }}</p>
+      @if (formPhoneTag) {
+        <span class="preview-phone-tag"><i class="pi pi-tag"></i> {{ formPhoneTag }}</span>
+      }
+    </div>
+    @if (editingBanner?.image && !selectedFile) {
+      <div class="preview-graphic">
+        <img [src]="fileBase + editingBanner!.image" alt="banner graphic" />
+      </div>
+    }
+  </div>
+
+  <div class="dialog-form-grid">
+    <div class="field-row two-col">
+      <div class="form-field">
+        <label for="bannerTitle">Title / Headline *</label>
+        <input
+          id="bannerTitle"
+          pInputText
+          [(ngModel)]="formTitle"
+          placeholder="e.g. iPhone 16 Pro Max, Flash Tech Festival"
+          class="w-full"
+        />
+      </div>
+      <div class="form-field">
+        <label for="bannerBadge">Top Badge</label>
+        <input
+          id="bannerBadge"
+          pInputText
+          [(ngModel)]="formBadge"
+          placeholder="e.g. Limited Time, New Flagship Arrival"
+          class="w-full"
+        />
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label for="bannerTagline">Tagline / Subtitle</label>
+      <input
+        id="bannerTagline"
+        pInputText
+        [(ngModel)]="formTagline"
+        placeholder="e.g. Titanium. So Strong. So Light. So Pro."
+        class="w-full"
+      />
+    </div>
+
+    <div class="form-field">
+      <label for="bannerDesc">Description</label>
+      <textarea
+        id="bannerDesc"
+        pInputTextarea
+        [(ngModel)]="formDesc"
+        rows="3"
+        placeholder="Detailed campaign or product description..."
+        class="w-full"
+      ></textarea>
+    </div>
+
+    <div class="field-row two-col">
+      <div class="form-field">
+        <label for="bannerPhoneTag">Promo Tag / Price Tag</label>
+        <input
+          id="bannerPhoneTag"
+          pInputText
+          [(ngModel)]="formPhoneTag"
+          placeholder="e.g. Use Code: MOBILE10, From ৳165,000"
+          class="w-full"
+        />
+      </div>
+      <div class="form-field">
+        <label for="bannerCtaText">CTA Button Text</label>
+        <input
+          id="bannerCtaText"
+          pInputText
+          [(ngModel)]="formCtaText"
+          placeholder="e.g. Explore Deals, Shop Now"
+          class="w-full"
+        />
+      </div>
+    </div>
+
+    <div class="field-row two-col">
+      <div class="form-field">
+        <label for="bannerCtaLink">CTA Target Link</label>
+        <input
+          id="bannerCtaLink"
+          pInputText
+          [(ngModel)]="formCtaLink"
+          placeholder="e.g. / or /products/iphone-16-pro-max"
+          class="w-full"
+        />
+      </div>
+      <div class="form-field">
+        <label for="bannerOrder">Display Order</label>
+        <p-inputNumber
+          inputId="bannerOrder"
+          [(ngModel)]="formOrder"
+          [min]="0"
+          styleClass="w-full"
+          inputStyleClass="w-full"
+        ></p-inputNumber>
+      </div>
+    </div>
+
+    <!-- Background Gradient Presets -->
+    <div class="form-field">
+      <label>Background Theme Gradient</label>
+      <div class="gradient-preset-row">
+        @for (preset of gradientPresets; track preset.label) {
+          <button
+            type="button"
+            class="gradient-swatch-btn"
+            [class.active]="formBgGradient === preset.value"
+            [style.background]="preset.value"
+            (click)="selectGradient(preset.value)"
+            [title]="preset.label"
+          ></button>
+        }
+      </div>
+      <input
+        pInputText
+        [(ngModel)]="formBgGradient"
+        placeholder="Custom CSS linear-gradient(...)"
+        class="w-full mt-2 code-input"
+      />
+    </div>
+
+    <!-- Banner Graphic Upload -->
+    <div class="form-field">
+      <label>Banner Graphic / Product Image (Optional PNG/WebP with transparent background recommended)</label>
+      <p-fileUpload
+        mode="basic"
+        chooseLabel="Upload Graphic"
+        accept="image/*"
+        [maxFileSize]="8000000"
+        [auto]="false"
+        (onSelect)="onFileSelect($event)"
+      ></p-fileUpload>
+      @if (editingBanner?.image && !selectedFile) {
+        <small class="text-muted mt-1">Current: {{ editingBanner!.image }}</small>
+      }
+    </div>
+
+    <div class="check-field">
+      <p-checkbox
+        [binary]="true"
+        [(ngModel)]="formIsActive"
+        inputId="bannerActive"
+      ></p-checkbox>
+      <label for="bannerActive">Active (Visible in homepage carousel)</label>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="dialogVisible = false"></button>
+    <button pButton label="Save Banner" icon="pi pi-check" [loading]="saving" (click)="save()"></button>
+  </ng-template>
+</p-dialog>

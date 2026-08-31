@@ -1,0 +1,318 @@
+<div class="home-page">
+  <!-- Hero Carousel Showcase Banner -->
+  <section class="hero-showcase">
+    <div class="page-container hero-container">
+      <div
+        class="hero-slide-card"
+        [style.background]="currentBanner.bgGradient || 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%)'"
+      >
+        <div class="hero-content">
+          @if (currentBanner.badge) {
+            <span class="hero-badge">
+              <i class="pi pi-bolt"></i> {{ currentBanner.badge }}
+            </span>
+          }
+          <h1 class="hero-title">{{ currentBanner.title }}</h1>
+          @if (currentBanner.tagline) {
+            <h3 class="hero-tagline">{{ currentBanner.tagline }}</h3>
+          }
+          @if (currentBanner.description || currentBanner.desc) {
+            <p class="hero-desc">{{ currentBanner.description || currentBanner.desc }}</p>
+          }
+
+          @if (currentBanner.phoneTag) {
+            <div class="hero-phone-tag">
+              <i class="pi pi-tag"></i> {{ currentBanner.phoneTag }}
+            </div>
+          }
+
+          <div class="hero-cta-row">
+            <a
+              [routerLink]="currentBanner.ctaLink || '/'"
+              class="hero-primary-cta"
+            >
+              {{ currentBanner.ctaText || 'Explore Deals' }} <i class="pi pi-arrow-right"></i>
+            </a>
+            <a routerLink="/compare" class="hero-secondary-cta">
+              <i class="pi pi-sliders-h"></i> Compare Specs
+            </a>
+          </div>
+        </div>
+
+        <div class="hero-graphic">
+          <div class="phone-glow"></div>
+          @if (currentBanner.image) {
+            <div class="hero-banner-image-wrap">
+              <img [src]="fileBase + currentBanner.image" [alt]="currentBanner.title" class="hero-banner-img" />
+            </div>
+          } @else {
+            <div class="hero-floating-badge">
+              <i class="pi pi-check-circle"></i>
+              <div>
+                <strong>Official BD Warranty</strong>
+                <small>100% Genuine Retailer</small>
+              </div>
+            </div>
+            <div class="hero-floating-badge badge-emi">
+              <i class="pi pi-percentage"></i>
+              <div>
+                <strong>0% EMI Available</strong>
+                <small>Up to 24 Months</small>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Slide Navigation Dots -->
+        @if (activeSlides.length > 1) {
+          <div class="hero-dots">
+            @for (slide of activeSlides; track slide.title; let idx = $index) {
+              <button
+                class="dot-btn"
+                [class.active]="currentSlide === idx"
+                (click)="setSlide(idx)"
+                [title]="slide.title"
+              ></button>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Value Proposition Trust Bar -->
+  <section class="value-props-section">
+    <div class="page-container value-grid">
+      <div class="value-item">
+        <div class="val-icon-box"><i class="pi pi-truck"></i></div>
+        <div class="val-text">
+          <h4>Free Express Delivery</h4>
+          <p>On all orders above ৳30,000 across BD</p>
+        </div>
+      </div>
+
+      <div class="value-item">
+        <div class="val-icon-box"><i class="pi pi-shield"></i></div>
+        <div class="val-text">
+          <h4>Official Brand Warranty</h4>
+          <p>1 Year full hardware &amp; service warranty</p>
+        </div>
+      </div>
+
+      <div class="value-item">
+        <div class="val-icon-box"><i class="pi pi-sync"></i></div>
+        <div class="val-text">
+          <h4>7 Days Replacement</h4>
+          <p>Hassle-free replacement guarantee</p>
+        </div>
+      </div>
+
+      <div class="value-item">
+        <div class="val-icon-box"><i class="pi pi-credit-card"></i></div>
+        <div class="val-text">
+          <h4>0% EMI Installments</h4>
+          <p>Available on 18+ leading partner banks</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Flash Deals & Countdown Section -->
+  @if (flashDealProducts.length > 0) {
+    <section class="flash-deals-section">
+      <div class="page-container">
+        <div class="flash-header">
+          <div class="flash-title-wrap">
+            <div class="flash-icon-box">
+              <i class="pi pi-bolt"></i>
+            </div>
+            <div>
+              <h2>Flash Deals of the Day</h2>
+              <p>Exclusive limited-time price drops on top smartphones</p>
+            </div>
+          </div>
+
+          <div class="countdown-clock">
+            <span class="clock-label">Ends in:</span>
+            <div class="time-boxes">
+              <span class="time-digit">{{ hours < 10 ? '0' + hours : hours }}<small>h</small></span>
+              <span class="time-sep">:</span>
+              <span class="time-digit">{{ minutes < 10 ? '0' + minutes : minutes }}<small>m</small></span>
+              <span class="time-sep">:</span>
+              <span class="time-digit">{{ seconds < 10 ? '0' + seconds : seconds }}<small>s</small></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flash-deals-grid">
+          @for (deal of flashDealProducts; track deal.id) {
+            <app-product-card [product]="deal"></app-product-card>
+          }
+        </div>
+      </div>
+    </section>
+  }
+
+  <!-- Main Product Discovery Catalog -->
+  <div class="page-container main-catalog-wrapper">
+    <!-- Quick Filter Category / Specs Pills -->
+    <div class="quick-pills-bar">
+      @for (pill of quickFilterPills; track pill.label; let i = $index) {
+        <button
+          class="pill-btn"
+          [class.active]="activePillIndex === i"
+          (click)="applyQuickPill(i, pill)"
+        >
+          {{ pill.label }}
+        </button>
+      }
+    </div>
+
+    <div class="catalog-toolbar">
+      <div class="toolbar-left">
+        <p-selectButton
+          [options]="typeOptions"
+          [(ngModel)]="selectedType"
+          (onChange)="onTypeChange()"
+          optionLabel="label"
+          optionValue="value"
+        ></p-selectButton>
+
+        @if (searchTerm) {
+          <div class="search-chip">
+            Results for "<strong>{{ searchTerm }}</strong>"
+            <i class="pi pi-times" (click)="clearSearch()"></i>
+          </div>
+        }
+      </div>
+
+      <div class="toolbar-right">
+        <span class="results-count">Showing <strong>{{ totalRecords }}</strong> items</span>
+        <p-dropdown
+          [options]="sortOptions"
+          [(ngModel)]="selectedSort"
+          (onChange)="onSortChange()"
+          optionLabel="label"
+          optionValue="value"
+          styleClass="sort-dropdown"
+        ></p-dropdown>
+
+        <button
+          pButton
+          icon="pi pi-filter"
+          label="Filters"
+          class="p-button-outlined p-button-sm hide-desktop filter-toggle"
+          (click)="mobileFiltersOpen = true"
+        ></button>
+      </div>
+    </div>
+
+    <div class="home-layout">
+      <aside class="sidebar hide-mobile">
+        <app-sidebar-filters
+          [categories]="categories"
+          [brands]="brands"
+          [productType]="selectedType"
+          [maxPriceLimit]="300000"
+          (filterChange)="onFilterChange($event)"
+        ></app-sidebar-filters>
+      </aside>
+
+      <section class="product-section">
+        @if (loading) {
+          <div class="spinner-wrap">
+            <p-progressSpinner styleClass="w-3rem h-3rem"></p-progressSpinner>
+          </div>
+        } @else if (products.length === 0) {
+          <div class="empty-state">
+            <i class="pi pi-inbox"></i>
+            <p>No products found matching your active filters.</p>
+            <button pButton label="Reset Filters" class="p-button-outlined p-button-sm" (click)="onTypeChange()"></button>
+          </div>
+        } @else {
+          <div class="product-grid">
+            @for (p of products; track p.id) {
+              <app-product-card [product]="p"></app-product-card>
+            }
+          </div>
+
+          <p-paginator
+            [rows]="rows"
+            [totalRecords]="totalRecords"
+            [rowsPerPageOptions]="[12, 24, 48]"
+            (onPageChange)="onPageChange($event)"
+          ></p-paginator>
+        }
+      </section>
+    </div>
+  </div>
+
+  <p-sidebar
+    [(visible)]="mobileFiltersOpen"
+    position="left"
+    [baseZIndex]="10000"
+  >
+    <h3>Catalog Filters</h3>
+    <app-sidebar-filters
+      [categories]="categories"
+      [brands]="brands"
+      [productType]="selectedType"
+      [maxPriceLimit]="300000"
+      (filterChange)="onFilterChange($event)"
+    ></app-sidebar-filters>
+  </p-sidebar>
+
+  <!-- Shop by Brand Showcase -->
+  <section class="brand-strip-section">
+    <div class="page-container">
+      <div class="section-title-center">
+        <h2>Shop by Popular Brands</h2>
+        <p>Explore official smartphones and laptops from the world's leading tech makers</p>
+      </div>
+
+      <div class="brand-grid-showcase">
+        @for (b of allBrands; track b.id) {
+          <div class="brand-card-item" (click)="filterByBrand(b)">
+            <div class="brand-logo-wrap">
+              @if (b.logo) {
+                <img [src]="fileBase + b.logo" [alt]="b.name" />
+              } @else {
+                <i class="pi pi-mobile fallback-brand-icon"></i>
+              }
+            </div>
+            <span class="brand-title">{{ b.name }}</span>
+            @if (b._count?.products) {
+              <span class="brand-count">{{ b._count?.products }} Devices</span>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter & Promo Voucher Banner -->
+  <section class="newsletter-banner-section">
+    <div class="page-container">
+      <div class="newsletter-card">
+        <div class="news-content">
+          <span class="news-badge"><i class="pi pi-gift"></i> Exclusive Welcome Offer</span>
+          <h2>Get 5% Off Your Next Smartphone</h2>
+          <p>Subscribe to our newsletter to receive the latest release alerts, flash sales, and an instant discount promo code.</p>
+        </div>
+
+        <div class="news-form-wrap">
+          <div class="news-input-box">
+            <input
+              type="email"
+              [(ngModel)]="newsletterEmail"
+              placeholder="Enter your email address..."
+              (keyup.enter)="subscribeNewsletter()"
+            />
+            <button pButton label="Claim Voucher" class="p-button-primary news-btn" (click)="subscribeNewsletter()"></button>
+          </div>
+          <small class="news-privacy">No spam. Unsubscribe anytime in 1-click.</small>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

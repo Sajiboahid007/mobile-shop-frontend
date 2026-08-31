@@ -1,0 +1,124 @@
+<div class="dashboard">
+  <div class="dashboard-header">
+    <div>
+      <h2>Admin Overview</h2>
+      <p class="subtitle">Store metrics, real-time sales trends, and smartphone traffic analytics</p>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="spinner-wrap">
+      <p-progressSpinner styleClass="w-3rem h-3rem"></p-progressSpinner>
+    </div>
+  } @else if (stats) {
+    <!-- Stats Cards Grid -->
+    <div class="stats-grid">
+      @for (card of cards; track card.label) {
+        <a [routerLink]="card.link" class="stat-card">
+          <div class="stat-icon" [style.background-color]="card.color + '22'" [style.color]="card.color">
+            <i [class]="card.icon"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ card.value }}</span>
+            <span class="stat-label">{{ card.label }}</span>
+          </div>
+        </a>
+      }
+    </div>
+
+    <!-- Visual Analytics & Charts Section -->
+    <div class="charts-grid">
+      <!-- Chart 1: Order & Sales Analysis -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <h3><i class="pi pi-chart-line"></i> Order &amp; Revenue Trends</h3>
+            <p>7-Day revenue generation and order volume analysis</p>
+          </div>
+          <span class="chart-badge text-blue">
+            Total Rev: <strong>৳{{ (stats.totalRevenue || 0) | number }}</strong>
+          </span>
+        </div>
+        <div class="chart-canvas-container">
+          <p-chart type="bar" [data]="orderChartData" [options]="orderChartOptions" height="290px"></p-chart>
+        </div>
+      </div>
+
+      <!-- Chart 2: Most Visited Smartphones -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <h3><i class="pi pi-eye"></i> Most Visited Smartphones</h3>
+            <p>Customer interest and device engagement traffic</p>
+          </div>
+          <span class="chart-badge text-purple">
+            <i class="pi pi-mobile"></i> Top Devices
+          </span>
+        </div>
+        <div class="chart-canvas-container">
+          <p-chart type="bar" [data]="phoneVisitsData" [options]="phoneVisitsOptions" height="290px"></p-chart>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Action / Orders Section -->
+    @if (stats.recentOrders && stats.recentOrders.length > 0) {
+      <section class="recent-section">
+        <div class="section-header">
+          <h3>Recent Orders</h3>
+          <a routerLink="/admin/orders" class="view-all-link">Manage All Orders &rarr;</a>
+        </div>
+        <div class="recent-orders-list">
+          @for (ord of stats.recentOrders; track ord.id) {
+            <div class="order-item-card">
+              <div>
+                <strong>{{ ord.orderNumber }}</strong>
+                <div class="order-sub">{{ ord.customerName }} &middot; {{ ord.city }}</div>
+              </div>
+              <div>
+                <strong class="text-price">৳{{ ord.totalAmount | number }}</strong>
+              </div>
+              <div>
+                <p-tag [value]="ord.orderStatus" [severity]="ord.orderStatus === 'DELIVERED' ? 'success' : (ord.orderStatus === 'CANCELLED' ? 'danger' : 'warning')"></p-tag>
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- Recent Products -->
+    <section class="recent-section">
+      <div class="section-header">
+        <h3>Recently Added Products</h3>
+        <a routerLink="/admin/products" class="view-all-link">View All Products &rarr;</a>
+      </div>
+
+      <div class="recent-grid">
+        @for (p of stats.recentProducts; track p.id) {
+          <div class="recent-card">
+            <div class="thumb-wrap">
+              @if (imageUrl(p)) {
+                <img [src]="imageUrl(p)" [alt]="p.title" />
+              } @else {
+                <i class="pi pi-image placeholder-icon"></i>
+              }
+            </div>
+            <div class="product-info">
+              <span class="brand-tag">{{ p.brand.name }}</span>
+              <h4 class="title">{{ p.title }}</h4>
+              <div class="price-row">
+                <span class="price">৳{{ (p.discountPrice || p.price) | number }}</span>
+                @if (p.isUpcoming) {
+                  <p-tag value="Upcoming" severity="warning"></p-tag>
+                } @else if (p.stock === 0) {
+                  <p-tag value="Out of stock" severity="danger"></p-tag>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  }
+</div>

@@ -1,0 +1,59 @@
+.admin-page-container {
+  padding: 1.5rem;
+}
+
+.page-header {
+  margin-bottom: 1.5rem;
+
+  h2 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  .subtitle {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.9rem;
+  }
+}
+
+.table-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+  .text-muted {
+    color: #64748b;
+    font-size: 0.8rem;
+  }
+
+  .rating-stars {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-weight: 700;
+    font-size: 0.88rem;
+
+    .star-gold {
+      color: #f59e0b;
+    }
+  }
+
+  .rev-title-cell {
+    font-weight: 700;
+    color: #0f172a;
+    font-size: 0.88rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .rev-comment-cell {
+    color: #475569;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    max-width: 420px;
+  }
+}

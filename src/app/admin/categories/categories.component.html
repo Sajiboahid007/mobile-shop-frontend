@@ -1,0 +1,63 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="page-header">
+  <h1>Categories</h1>
+  <button pButton icon="pi pi-plus" label="Add Category" (click)="openNew()"></button>
+</div>
+
+<p-table [value]="categories" [loading]="loading" dataKey="id" styleClass="p-datatable-sm">
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Name</th>
+      <th style="width: 140px">Type</th>
+      <th style="width: 120px">Products</th>
+      <th style="width: 140px">Actions</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-cat>
+    <tr>
+      <td>{{ cat.name }}</td>
+      <td>
+        <span class="type-badge" [class.laptop]="cat.type === 'LAPTOP'">{{ cat.type }}</span>
+      </td>
+      <td>{{ cat._count?.products || 0 }}</td>
+      <td>
+        <button pButton icon="pi pi-pencil" class="p-button-text p-button-sm" (click)="openEdit(cat)"></button>
+        <button
+          pButton
+          icon="pi pi-trash"
+          class="p-button-text p-button-sm p-button-danger"
+          (click)="confirmDelete(cat)"
+        ></button>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td colspan="4" class="empty-cell">No categories yet. Click "Add Category" to create one.</td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<p-dialog
+  [(visible)]="dialogVisible"
+  [header]="editingCategory ? 'Edit Category' : 'Add Category'"
+  [modal]="true"
+  [style]="{ width: '420px' }"
+>
+  <div class="form-field">
+    <label for="catName">Category name</label>
+    <input id="catName" pInputText [(ngModel)]="formName" placeholder="e.g. Flagship, Gaming Laptop" class="w-full" />
+  </div>
+
+  <div class="form-field">
+    <label>Applies to</label>
+    <p-dropdown [options]="typeOptions" [(ngModel)]="formType" optionLabel="label" optionValue="value" styleClass="w-full"></p-dropdown>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="dialogVisible = false"></button>
+    <button pButton label="Save" icon="pi pi-check" [loading]="saving" (click)="save()"></button>
+  </ng-template>
+</p-dialog>

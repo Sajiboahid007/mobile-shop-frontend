@@ -1,0 +1,83 @@
+<div class="page-container wishlist-page">
+  <div class="wishlist-header">
+    <div class="header-left">
+      <span class="eyebrow"><i class="pi pi-heart"></i> Personal Collection</span>
+      <h1>My Saved Wishlist</h1>
+      <p class="subtitle">Keep track of your favorite smartphones and tech gear in one place.</p>
+    </div>
+
+    @if (wishlist.count() > 0) {
+      <button pButton label="Clear All" icon="pi pi-trash" class="p-button-outlined p-button-danger p-button-sm" (click)="wishlist.clearWishlist()"></button>
+    }
+  </div>
+
+  @if (wishlist.count() === 0) {
+    <div class="empty-wishlist-state">
+      <div class="empty-icon-wrap">
+        <i class="pi pi-heart"></i>
+      </div>
+      <h3>Your wishlist is empty</h3>
+      <p>Click the heart icon on any device to save it here for quick access later.</p>
+      <a routerLink="/" pButton label="Explore Smartphones" icon="pi pi-compass" class="p-button-rounded p-button-lg"></a>
+    </div>
+  } @else {
+    <div class="wishlist-grid">
+      @for (p of wishlist.items(); track p.id) {
+        <div class="wishlist-item-card">
+          <button class="remove-btn" (click)="removeItem(p)" title="Remove item">
+            <i class="pi pi-times"></i>
+          </button>
+
+          <a [routerLink]="['/products', p.slug]" class="card-top">
+            <div class="img-wrap">
+              <img [src]="getImage(p)" [alt]="p.title" />
+            </div>
+
+            <div class="card-info">
+              <span class="brand-tag">{{ p.brand.name }}</span>
+              <h4 class="product-title">{{ p.title }}</h4>
+
+              <div class="price-row">
+                @if (p.discountPrice) {
+                  <span class="text-strike">৳{{ p.price | number }}</span>
+                  <span class="text-price">৳{{ p.discountPrice | number }}</span>
+                } @else {
+                  <span class="text-price">৳{{ p.price | number }}</span>
+                }
+              </div>
+
+              <div class="stock-row">
+                @if (p.isUpcoming) {
+                  <p-tag value="Upcoming" severity="warning"></p-tag>
+                } @else if (p.stock > 0) {
+                  <p-tag value="In Stock" severity="success"></p-tag>
+                } @else {
+                  <p-tag value="Out of Stock" severity="danger"></p-tag>
+                }
+              </div>
+            </div>
+          </a>
+
+          <div class="card-actions">
+            @if (!p.isUpcoming && p.stock > 0) {
+              <button
+                pButton
+                label="Move to Bag"
+                icon="pi pi-shopping-bag"
+                class="p-button-primary p-button-sm move-btn"
+                (click)="moveToCart(p)"
+              ></button>
+            }
+            <button
+              pButton
+              icon="pi pi-sliders-h"
+              class="p-button-outlined p-button-sm compare-btn"
+              pTooltip="Add to Compare"
+              (click)="addToCompare(p)"
+            ></button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,50 @@
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.filter-row {
+  margin-bottom: 1rem;
+}
+
+.thumb {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.muted {
+  color: #9ca3af;
+}
+
+.title-cell-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: flex-start;
+
+  .product-title-text {
+    font-weight: 600;
+  }
+
+  .flash-deal-tag {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #b45309;
+    background: #fef3c7;
+    border: 1px solid #fde68a;
+    padding: 0.1rem 0.45rem;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    letter-spacing: 0.3px;
+  }
+}
+
+.empty-cell {
+  text-align: center;
+  color: #9ca3af;
+  padding: 2rem;
+}

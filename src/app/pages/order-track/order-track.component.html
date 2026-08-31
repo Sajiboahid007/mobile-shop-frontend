@@ -1,0 +1,159 @@
+<div class="page-container track-page">
+  <div class="track-hero">
+    <span class="eyebrow"><i class="pi pi-compass"></i> Live Order Tracking</span>
+    <h1>Track Your Shipment</h1>
+    <p class="subtitle">Enter your order tracking code to check real-time status and delivery updates.</p>
+
+    <div class="tracking-search-bar">
+      <i class="pi pi-search search-icon"></i>
+      <input
+        type="text"
+        pInputText
+        [(ngModel)]="trackingInput"
+        placeholder="Enter Order Code (e.g. MS-1234-5678)"
+        (keyup.enter)="trackOrder()"
+      />
+      <button
+        pButton
+        label="Track Order"
+        icon="pi pi-arrow-right"
+        [loading]="loading"
+        class="p-button-primary track-submit-btn"
+        (click)="trackOrder()"
+      ></button>
+    </div>
+  </div>
+
+  @if (errorMsg) {
+    <div class="track-error-card">
+      <i class="pi pi-exclamation-circle"></i>
+      <div>
+        <strong>Order Not Found</strong>
+        <p>{{ errorMsg }}</p>
+      </div>
+    </div>
+  }
+
+  @if (order) {
+    <div class="track-result-wrapper">
+      <!-- Top Order Status Bar -->
+      <div class="order-status-banner">
+        <div class="banner-left">
+          <span class="order-no-label">Order Reference</span>
+          <h2 class="order-no">{{ order.orderNumber }}</h2>
+          <span class="order-date"><i class="pi pi-calendar"></i> Placed on {{ order.createdAt | date: 'medium' }}</span>
+        </div>
+
+        <div class="banner-right">
+          <span class="status-chip" [class]="order.orderStatus.toLowerCase()">
+            {{ order.orderStatus }}
+          </span>
+          <button pButton icon="pi pi-print" label="Print Invoice" class="p-button-outlined p-button-sm print-btn" (click)="printInvoice()"></button>
+        </div>
+      </div>
+
+      <!-- Live Stepper Timeline -->
+      <div class="stepper-timeline-card">
+        <h3><i class="pi pi-map"></i> Delivery Journey</h3>
+
+        <div class="stepper-track">
+          @for (step of steps; track step.key; let i = $index) {
+            <div class="step-item" [class.completed]="isStepCompleted(i)" [class.active]="isStepActive(i)">
+              <div class="step-icon-wrap">
+                <i [class]="step.icon"></i>
+              </div>
+              <div class="step-info">
+                <span class="step-name">{{ step.label }}</span>
+                <span class="step-desc">{{ step.desc }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Order Details Grid -->
+      <div class="order-details-grid">
+        <!-- Items Column -->
+        <div class="detail-card items-col">
+          <h3><i class="pi pi-box"></i> Ordered Items ({{ order.items.length }})</h3>
+
+          <div class="order-items-list">
+            @for (item of order.items; track item.id) {
+              <div class="order-item-row">
+                <div class="item-icon-box">
+                  <i class="pi pi-mobile"></i>
+                </div>
+                <div class="item-name-specs">
+                  <h4>{{ item.productTitle }}</h4>
+                  <div class="item-pills">
+                    @if (item.color) {
+                      <span class="pill"><i class="pi pi-palette"></i> {{ item.color }}</span>
+                    }
+                    @if (item.storage) {
+                      <span class="pill"><i class="pi pi-database"></i> {{ item.storage }}</span>
+                    }
+                    <span class="pill qty-pill">Qty: {{ item.quantity }}</span>
+                  </div>
+                </div>
+                <div class="item-price-col">
+                  <span>৳{{ (item.price * item.quantity) | number }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Summary & Customer Details -->
+        <div class="detail-card summary-col">
+          <h3><i class="pi pi-receipt"></i> Order Summary &amp; Address</h3>
+
+          <div class="customer-info-box">
+            <div class="info-line">
+              <span class="label">Customer:</span>
+              <span class="value"><strong>{{ order.customerName }}</strong></span>
+            </div>
+            <div class="info-line">
+              <span class="label">Phone:</span>
+              <span class="value">{{ order.customerPhone }}</span>
+            </div>
+            @if (order.customerEmail) {
+              <div class="info-line">
+                <span class="label">Email:</span>
+                <span class="value">{{ order.customerEmail }}</span>
+              </div>
+            }
+            <div class="info-line">
+              <span class="label">Delivery Address:</span>
+              <span class="value">{{ order.shippingAddress }}, {{ order.city }} {{ order.postalCode || '' }}</span>
+            </div>
+            <div class="info-line">
+              <span class="label">Payment:</span>
+              <span class="value badge-pay">{{ order.paymentMethod }} ({{ order.paymentStatus }})</span>
+            </div>
+          </div>
+
+          <div class="invoice-lines">
+            <div class="inv-row">
+              <span>Subtotal</span>
+              <span>৳{{ order.subtotal | number }}</span>
+            </div>
+            @if (order.discount > 0) {
+              <div class="inv-row discount">
+                <span>Discount</span>
+                <span>-৳{{ order.discount | number }}</span>
+              </div>
+            }
+            <div class="inv-row">
+              <span>Delivery Fee</span>
+              <span>{{ order.shippingFee === 0 ? 'FREE' : ('৳' + (order.shippingFee | number)) }}</span>
+            </div>
+            <div class="inv-row total">
+              <span>Total Amount</span>
+              <span class="final-total">৳{{ order.totalAmount | number }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

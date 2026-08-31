@@ -1,0 +1,91 @@
+<div class="product-card-container" [id]="'product-' + product.id">
+  <div class="quick-action-buttons">
+    <button
+      class="icon-btn wishlist-btn"
+      [class.active]="wishlist.isInWishlist(product.id)"
+      (click)="toggleWishlist($event)"
+      pTooltip="Add to Wishlist"
+      tooltipPosition="left"
+    >
+      <i [class]="wishlist.isInWishlist(product.id) ? 'pi pi-heart-fill' : 'pi pi-heart'"></i>
+    </button>
+
+    <button
+      class="icon-btn compare-btn"
+      [class.active]="compare.isInCompare(product.id)"
+      (click)="toggleCompare($event)"
+      pTooltip="Compare Device"
+      tooltipPosition="left"
+    >
+      <i class="pi pi-sliders-h"></i>
+    </button>
+  </div>
+
+  <a
+    [routerLink]="['/products', product.slug || product.id]"
+    (click)="onCardClick()"
+    class="product-card"
+  >
+    <div class="image-wrap">
+      @if (product.isUpcoming) {
+        <p-tag value="Upcoming" severity="warning" class="badge"></p-tag>
+      } @else if (product.stock === 0) {
+        <p-tag value="Out of Stock" severity="danger" class="badge"></p-tag>
+      } @else if (hasDiscount) {
+        <span class="discount-badge">-{{ discountPercent }}%</span>
+      }
+
+      <img [src]="imageUrl" [alt]="product.title" loading="lazy" />
+    </div>
+
+    <div class="info">
+      <div class="brand-row">
+        <span class="brand-name">{{ product.brand.name }}</span>
+        <span class="category-type">{{ product.category.name }}</span>
+      </div>
+
+      <h4 class="title" [title]="product.title">{{ product.title }}</h4>
+
+      <!-- Specs Pills -->
+      @if (keySpecs.length > 0) {
+        <div class="specs-preview">
+          @for (spec of keySpecs; track spec) {
+            <span class="spec-pill">{{ spec }}</span>
+          }
+        </div>
+      }
+
+      <!-- Rating Display -->
+      <div class="rating-strip">
+        <div class="stars">
+          <i class="pi pi-star-fill star-gold"></i>
+          <span class="rating-val">4.8</span>
+        </div>
+        <span class="stock-status" [class.in-stock]="product.stock > 0" [class.out-stock]="product.stock === 0">
+          {{ product.stock > 0 ? 'In Stock' : (product.isUpcoming ? 'Pre-Order' : 'Out of Stock') }}
+        </span>
+      </div>
+
+      <div class="price-action-row">
+        <div class="price-row">
+          @if (hasDiscount) {
+            <span class="text-strike">৳{{ product.price | number }}</span>
+            <span class="text-price">৳{{ product.discountPrice | number }}</span>
+          } @else {
+            <span class="text-price">৳{{ product.price | number }}</span>
+          }
+        </div>
+
+        @if (!product.isUpcoming && product.stock > 0) {
+          <button
+            class="cart-add-btn"
+            (click)="quickAddToCart($event)"
+            title="Add to Cart"
+          >
+            <i class="pi pi-shopping-bag"></i>
+          </button>
+        }
+      </div>
+    </div>
+  </a>
+</div>

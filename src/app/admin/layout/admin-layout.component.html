@@ -1,0 +1,35 @@
+<div class="admin-shell" [class.sidebar-open]="sidebarOpen">
+  <aside class="admin-sidebar">
+    <div class="sidebar-brand">
+      <i class="pi pi-mobile"></i>
+      <span>MobileShop</span>
+    </div>
+
+    <nav>
+      @for (item of navItems; track item.link) {
+        <a [routerLink]="item.link" routerLinkActive="active" class="nav-item">
+          <i [class]="item.icon"></i>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <a routerLink="/" class="nav-item view-site">
+      <i class="pi pi-external-link"></i>
+      <span>View Website</span>
+    </a>
+  </aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <button pButton icon="pi pi-bars" class="p-button-text hide-desktop" (click)="sidebarOpen = !sidebarOpen"></button>
+      <span class="spacer"></span>
+      <span class="admin-name"><i class="pi pi-user"></i> {{ auth.admin()?.name }}</span>
+      <button pButton icon="pi pi-sign-out" label="Logout" class="p-button-text p-button-sm" (click)="logout()"></button>
+    </header>
+
+    <main class="admin-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

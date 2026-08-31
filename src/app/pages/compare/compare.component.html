@@ -1,0 +1,166 @@
+<div class="page-container compare-page">
+  <div class="compare-header">
+    <div class="header-left">
+      <span class="page-eyebrow"><i class="pi pi-sliders-h"></i> Spec-By-Spec Matrix</span>
+      <h1>Compare Smartphones &amp; Laptops</h1>
+      <p class="subtitle">Evaluate technical specifications, performance, camera, battery, and pricing side-by-side.</p>
+    </div>
+
+    <div class="header-actions">
+      @if (compare.count() > 0) {
+        <label class="diff-toggle">
+          <input type="checkbox" [(ngModel)]="highlightDiffs" />
+          <span>Highlight Differences</span>
+        </label>
+        <button pButton label="Clear All" icon="pi pi-trash" class="p-button-outlined p-button-danger p-button-sm" (click)="compare.clearCompare()"></button>
+      }
+
+      @if (compare.count() < compare.maxLimit) {
+        <button
+          pButton
+          label="Add Device ({{ compare.count() }}/{{ compare.maxLimit }})"
+          icon="pi pi-plus"
+          class="p-button-primary p-button-sm"
+          (click)="addModalOpen = true"
+        ></button>
+      }
+    </div>
+  </div>
+
+  @if (compare.count() === 0) {
+    <div class="empty-compare-state">
+      <div class="empty-icon-wrap">
+        <i class="pi pi-sliders-h"></i>
+      </div>
+      <h3>No devices selected for comparison</h3>
+      <p>Choose up to 4 smartphones or laptops to see a detailed spec comparison table.</p>
+      <button pButton label="Select Devices to Compare" icon="pi pi-plus" class="p-button-rounded p-button-lg" (click)="addModalOpen = true"></button>
+    </div>
+  } @else {
+    <!-- Comparison Table Container -->
+    <div class="compare-table-wrapper">
+      <table class="compare-table">
+        <!-- Products Sticky Header Row -->
+        <thead>
+          <tr>
+            <th class="spec-label-col">Specs Overview</th>
+            @for (product of compare.items(); track product.id) {
+              <th class="product-header-col">
+                <div class="product-card-top">
+                  <button class="remove-btn" (click)="compare.removeFromCompare(product.id)" title="Remove from comparison">
+                    <i class="pi pi-times"></i>
+                  </button>
+
+                  <div class="thumb-wrap">
+                    <img [src]="getImage(product)" [alt]="product.title" />
+                  </div>
+
+                  <span class="product-brand">{{ product.brand.name }}</span>
+                  <a [routerLink]="['/products', product.slug]" class="product-name">{{ product.title }}</a>
+
+                  <div class="product-price">
+                    @if (product.discountPrice) {
+                      <span class="text-strike">৳{{ product.price | number }}</span>
+                      <span class="text-price">৳{{ product.discountPrice | number }}</span>
+                    } @else {
+                      <span class="text-price">৳{{ product.price | number }}</span>
+                    }
+                  </div>
+
+                  <div class="action-buttons">
+                    <button
+                      pButton
+                      label="Add to Bag"
+                      icon="pi pi-shopping-bag"
+                      class="p-button-sm p-button-rounded buy-btn"
+                      (click)="quickBuy(product)"
+                    ></button>
+                    <a [routerLink]="['/products', product.slug]" class="view-link">Details &rarr;</a>
+                  </div>
+                </div>
+              </th>
+            }
+
+            <!-- Empty slots if less than maxLimit -->
+            @for (emptySlot of [].constructor(compare.maxLimit - compare.count()); track $index) {
+              <th class="product-header-col empty-slot-col">
+                <div class="empty-slot-box" (click)="addModalOpen = true">
+                  <i class="pi pi-plus-circle"></i>
+                  <span>Add Device to Compare</span>
+                </div>
+              </th>
+            }
+          </tr>
+        </thead>
+
+        <!-- Spec Categories -->
+        <tbody>
+          @for (cat of specCategories; track cat.name) {
+            <tr class="category-header-row">
+              <td [attr.colspan]="compare.maxLimit + 1">
+                <i class="pi pi-check-circle"></i> {{ cat.name }}
+              </td>
+            </tr>
+
+            @for (spec of cat.specs; track spec.label) {
+              <tr [class.highlight-row]="highlightDiffs && isSpecDifferent(spec.key)">
+                <td class="spec-label-col">{{ spec.label }}</td>
+                @for (product of compare.items(); track product.id) {
+                  <td class="spec-value-col">
+                    {{ spec.key(product) }}
+                  </td>
+                }
+                @for (emptySlot of [].constructor(compare.maxLimit - compare.count()); track $index) {
+                  <td class="spec-value-col empty-val">-</td>
+                }
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+<!-- Add Device Search Dialog -->
+<p-dialog
+  header="Select a Device to Compare"
+  [(visible)]="addModalOpen"
+  [modal]="true"
+  [style]="{ width: '90vw', maxWidth: '600px' }"
+  [draggable]="false"
+>
+  <div class="add-device-modal">
+    <div class="search-input-wrap">
+      <i class="pi pi-search"></i>
+      <input
+        type="text"
+        pInputText
+        [(ngModel)]="searchQuery"
+        placeholder="Search by phone name, brand, or model..."
+      />
+    </div>
+
+    <div class="devices-picker-list">
+      @if (loadingProducts) {
+        <p class="loading-text"><i class="pi pi-spin pi-spinner"></i> Loading catalog...</p>
+      } @else if (filteredAvailableProducts.length === 0) {
+        <p class="empty-hint">No matching devices found.</p>
+      } @else {
+        @for (p of filteredAvailableProducts; track p.id) {
+          <div class="device-picker-item" (click)="addToCompare(p)">
+            <div class="picker-thumb">
+              <img [src]="getImage(p)" [alt]="p.title" />
+            </div>
+            <div class="picker-info">
+              <span class="picker-brand">{{ p.brand.name }}</span>
+              <span class="picker-title">{{ p.title }}</span>
+              <span class="picker-price">৳{{ (p.discountPrice || p.price) | number }}</span>
+            </div>
+            <button pButton icon="pi pi-plus" label="Add" class="p-button-sm p-button-outlined"></button>
+          </div>
+        }
+      }
+    </div>
+  </div>
+</p-dialog>

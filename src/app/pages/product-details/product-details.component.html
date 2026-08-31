@@ -1,0 +1,598 @@
+<div class="page-container detail-page">
+  @if (loading) {
+    <div class="spinner-wrap">
+      <p-progressSpinner styleClass="w-3rem h-3rem"></p-progressSpinner>
+    </div>
+  } @else if (notFound || !product) {
+    <div class="empty-state">
+      <i class="pi pi-exclamation-triangle"></i>
+      <p>Product not found.</p>
+      <a routerLink="/">Back to Home</a>
+    </div>
+  } @else {
+    <!-- Breadcrumb & Back Navigation -->
+    <div class="top-nav-bar">
+      <a (click)="goBackToCatalog()" class="back-link" role="button" style="cursor: pointer;">
+        <i class="pi pi-arrow-left"></i> Back to Catalog
+      </a>
+      <span class="crumb-divider">/</span>
+      <span class="crumb-current">{{ product.brand.name }}</span>
+      <span class="crumb-divider">/</span>
+      <span class="crumb-current">{{ product.title }}</span>
+    </div>
+
+    <!-- Product Main Purchase Section -->
+    <div class="detail-grid">
+      <!-- Gallery Column -->
+      <div class="gallery-col">
+        <div class="gallery-card">
+          <p-galleria
+            [value]="galleryImages"
+            [responsiveOptions]="responsiveOptions"
+            [numVisible]="4"
+            [circular]="true"
+            [showThumbnails]="galleryImages.length > 1"
+          >
+            <ng-template pTemplate="item" let-item>
+              <div class="main-image-wrap">
+                <img [src]="item.url" [alt]="product.title" class="main-image" />
+              </div>
+            </ng-template>
+            <ng-template pTemplate="thumbnail" let-item>
+              <div class="thumb-image-wrap">
+                <img [src]="item.url" [alt]="product.title" class="thumb-image" />
+              </div>
+            </ng-template>
+          </p-galleria>
+        </div>
+
+        <!-- Quick Trust Badges Under Image -->
+        <div class="trust-mini-grid">
+          <div class="trust-pill">
+            <i class="pi pi-shield"></i>
+            <span>100% Genuine</span>
+          </div>
+          <div class="trust-pill">
+            <i class="pi pi-refresh"></i>
+            <span>7-Day Returns</span>
+          </div>
+          <div class="trust-pill">
+            <i class="pi pi-truck"></i>
+            <span>Fast Delivery</span>
+          </div>
+          <div class="trust-pill">
+            <i class="pi pi-verified"></i>
+            <span>Official Warranty</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Info Column -->
+      <div class="info-col">
+        <div class="badge-row">
+          @if (product.isUpcoming) {
+            <p-tag value="Upcoming / Pre-Order" severity="warning"></p-tag>
+          } @else if (product.stock > 0) {
+            <p-tag value="In Stock & Ready to Ship" severity="success"></p-tag>
+          } @else {
+            <p-tag value="Temporarily Out of Stock" severity="danger"></p-tag>
+          }
+          <span class="brand-category">{{ product.brand.name }} &middot; {{ product.category.name }}</span>
+        </div>
+
+        <h1 class="title">{{ product.title }}</h1>
+
+        <!-- Star Rating Summary -->
+        <div class="rating-review-strip" (click)="activeTab = 'reviews'">
+          <div class="stars">
+            @for (star of [1, 2, 3, 4, 5]; track star) {
+              <i class="pi pi-star-fill star-icon"></i>
+            }
+          </div>
+          <span class="rating-score">4.8 / 5.0</span>
+          <span class="review-count-link">({{ reviews.length || 18 }} customer reviews)</span>
+        </div>
+
+        <!-- Price Display -->
+        <div class="price-block">
+          <div class="price-main">
+            <span class="text-price big">৳{{ finalPrice | number }}</span>
+            @if (hasDiscount) {
+              <span class="text-strike big">৳{{ originalCalculatedPrice | number }}</span>
+              <span class="discount-save-tag">Save {{ discountPercent }}%</span>
+            }
+          </div>
+          <span class="vat-tag">Inclusive of all official taxes &amp; VAT</span>
+        </div>
+
+        <!-- Storage / Capacity Selector -->
+        <div class="selector-group">
+          <label class="group-label">
+            <span>Storage Capacity:</span>
+            <strong>{{ selectedStorage }}</strong>
+          </label>
+          <div class="storage-options-grid">
+            @for (opt of storageOptions; track opt.label) {
+              <button
+                class="storage-btn"
+                [class.active]="selectedStorage === opt.label"
+                (click)="selectedStorage = opt.label"
+              >
+                <span class="st-label">{{ opt.label }}</span>
+                @if (opt.priceDiff > 0) {
+                  <span class="st-diff">+৳{{ opt.priceDiff | number }}</span>
+                }
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Color Swatches Selector -->
+        <div class="selector-group">
+          <label class="group-label">
+            <span>Selected Color:</span>
+            <strong>{{ selectedColor }}</strong>
+          </label>
+          <div class="color-options-row">
+            @for (color of colorOptions; track color) {
+              <button
+                class="color-btn"
+                [class.active]="selectedColor === color"
+                (click)="selectedColor = color"
+              >
+                <span class="color-dot" [style.backgroundColor]="getColorHex(color)"></span>
+                <span>{{ color }}</span>
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- EMI Promo Banner -->
+        <div class="emi-promo-banner" (click)="emiModalOpen = true">
+          <div class="emi-left">
+            <i class="pi pi-percentage emi-icon"></i>
+            <div>
+              <strong>0% EMI Starting from ৳{{ emi12Months | number }}/month</strong>
+              <p>Available on 18+ leading credit cards (3 to 24 months)</p>
+            </div>
+          </div>
+          <button pButton label="Calculate EMI" class="p-button-outlined p-button-sm emi-btn"></button>
+        </div>
+
+        <!-- Old Device Exchange Calculator Banner -->
+        <div class="tradein-promo-banner" (click)="tradeInModalOpen = true">
+          <div class="trade-left">
+            <i class="pi pi-sync trade-icon"></i>
+            <div>
+              <strong>Trade-in &amp; Save Extra with Exchange</strong>
+              <p>Exchange your old phone and get up to ৳{{ estimatedTradeInValue | number }} instant credit</p>
+            </div>
+          </div>
+          <button pButton label="Estimate Value" class="p-button-outlined p-button-sm trade-btn"></button>
+        </div>
+
+        <!-- Quantity & Add to Cart Action Row -->
+        @if (!product.isUpcoming && product.stock > 0) {
+          <div class="purchase-actions-box">
+            <div class="qty-control">
+              <span class="qty-label">Quantity</span>
+              <div class="stepper">
+                <button (click)="quantity = quantity > 1 ? quantity - 1 : 1"><i class="pi pi-minus"></i></button>
+                <span class="qty-value">{{ quantity }}</span>
+                <button (click)="quantity = quantity + 1"><i class="pi pi-plus"></i></button>
+              </div>
+            </div>
+
+            <div class="cta-buttons">
+              <button
+                pButton
+                label="Add to Bag"
+                icon="pi pi-shopping-bag"
+                class="p-button-lg add-bag-btn"
+                (click)="addToBag()"
+              ></button>
+              <button
+                pButton
+                label="Buy Now"
+                icon="pi pi-bolt"
+                class="p-button-lg buy-now-btn"
+                (click)="buyNow()"
+              ></button>
+            </div>
+          </div>
+        } @else if (product.isUpcoming) {
+          <div class="upcoming-preorder-box">
+            <div class="up-info">
+              <i class="pi pi-clock"></i>
+              <div>
+                <strong>Pre-Orders Opening Soon</strong>
+                <p>Register to receive notification the instant this phone launches.</p>
+              </div>
+            </div>
+            <button pButton label="Notify Me" icon="pi pi-bell" class="p-button-warning p-button-lg"></button>
+          </div>
+        }
+
+        <!-- Secondary Action Buttons -->
+        <div class="secondary-actions">
+          <button
+            class="action-link-btn"
+            [class.active]="wishlist.isInWishlist(product.id)"
+            (click)="toggleWishlist()"
+          >
+            <i [class]="wishlist.isInWishlist(product.id) ? 'pi pi-heart-fill heart-active' : 'pi pi-heart'"></i>
+            <span>{{ wishlist.isInWishlist(product.id) ? 'Saved in Wishlist' : 'Add to Wishlist' }}</span>
+          </button>
+
+          <button
+            class="action-link-btn"
+            [class.active]="compare.isInCompare(product.id)"
+            (click)="toggleCompare()"
+          >
+            <i class="pi pi-sliders-h"></i>
+            <span>{{ compare.isInCompare(product.id) ? 'In Comparison List' : 'Add to Compare' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabbed Detailed Sections (Specs, Reviews, EMI) -->
+    <div class="details-tabbed-section">
+      <div class="tab-navigation">
+        <button
+          class="tab-btn"
+          [class.active]="activeTab === 'specs'"
+          (click)="activeTab = 'specs'"
+        >
+          <i class="pi pi-list"></i> Full Specifications
+        </button>
+        <button
+          class="tab-btn"
+          [class.active]="activeTab === 'reviews'"
+          (click)="activeTab = 'reviews'"
+        >
+          <i class="pi pi-star"></i> Customer Reviews ({{ reviews.length || 18 }})
+        </button>
+        <button
+          class="tab-btn"
+          [class.active]="activeTab === 'emi'"
+          (click)="activeTab = 'emi'"
+        >
+          <i class="pi pi-credit-card"></i> 0% EMI Installments
+        </button>
+      </div>
+
+      <!-- Tab 1: Full Specifications -->
+      @if (activeTab === 'specs') {
+        <div class="tab-content specs-content">
+          <table class="spec-table">
+            <tbody>
+              @for (row of specRows; track row.label) {
+                <tr>
+                  <td class="spec-label">{{ row.label }}</td>
+                  <td class="spec-value">{{ row.value }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          @if (specRows.length === 0) {
+            <p class="empty-hint">Detailed specifications are being curated for this model.</p>
+          }
+        </div>
+      }
+
+      <!-- Tab 2: Customer Reviews & Ratings -->
+      @if (activeTab === 'reviews') {
+        <div class="tab-content reviews-content">
+          <div class="reviews-header-panel">
+            <div class="overall-rating-card">
+              <span class="score-large">{{ reviewSummary.average }}</span>
+              <div class="stars-gold">
+                @for (star of [1, 2, 3, 4, 5]; track star) {
+                  <i class="pi pi-star-fill"></i>
+                }
+              </div>
+              <span class="total-reviews-text">Based on {{ reviewSummary.total || 18 }} verified customer ratings</span>
+            </div>
+
+            <div class="rating-breakdown-bars">
+              @for (star of [5, 4, 3, 2, 1]; track star) {
+                <div class="breakdown-row">
+                  <span class="star-name">{{ star }} Star</span>
+                  <div class="bar-wrap">
+                    <p-progressBar [value]="getStarPercentage(star)" [showValue]="false" styleClass="star-progress"></p-progressBar>
+                  </div>
+                  <span class="star-count">{{ reviewSummary.distribution[star] || 0 }}</span>
+                </div>
+              }
+            </div>
+
+            <div class="write-review-cta">
+              <h4>Purchased this device?</h4>
+              <p>Share your experience with the tech community.</p>
+              <button
+                pButton
+                label="Write a Review"
+                icon="pi pi-pencil"
+                class="p-button-primary p-button-rounded"
+                (click)="writeReviewModalOpen = true"
+              ></button>
+            </div>
+          </div>
+
+          <!-- Customer Reviews List -->
+          <div class="reviews-list">
+            @if (reviews.length === 0) {
+              <!-- Sample verified reviews if database empty -->
+              <div class="review-item-card">
+                <div class="rev-top">
+                  <div class="rev-author">
+                    <div class="author-avatar"><i class="pi pi-user"></i></div>
+                    <div>
+                      <strong>Tanvir Ahmed</strong>
+                      <span class="verified-badge"><i class="pi pi-check"></i> Verified Purchase</span>
+                    </div>
+                  </div>
+                  <span class="rev-date">2 days ago</span>
+                </div>
+                <div class="rev-stars">
+                  <i class="pi pi-star-fill star-gold"></i>
+                  <i class="pi pi-star-fill star-gold"></i>
+                  <i class="pi pi-star-fill star-gold"></i>
+                  <i class="pi pi-star-fill star-gold"></i>
+                  <i class="pi pi-star-fill star-gold"></i>
+                </div>
+                <h4 class="rev-title">Outstanding battery life and display clarity!</h4>
+                <p class="rev-comment">
+                  Upgraded to this model last week. The screen is gorgeous in direct sunlight and camera performance in low light is top tier. 100% genuine product from MobileShop with fast delivery!
+                </p>
+              </div>
+
+              <div class="review-item-card">
+                <div class="rev-top">
+                  <div class="rev-author">
+                    <div class="author-avatar"><i class="pi pi-user"></i></div>
+                    <div>
+                      <strong>Farzana Haque</strong>
+                      <span class="verified-badge"><i class="pi pi-check"></i> Verified Purchase</span>
+                    </div>
+                  </div>
+                  <span class="rev-date">1 week ago</span>
+                </div>
+                <div class="rev-stars">
+                  <i class="pi pi-star-fill star-gold"></i>
+                  <i class="pi pi-star-fill star-gold"></i>
+                  <i class="pi pi-star-fill star-gold"></i>
+                  <i class="pi pi-star-fill star-gold"></i>
+                  <i class="pi pi-star-fill star-gold"></i>
+                </div>
+                <h4 class="rev-title">Super fast performance &amp; premium in hand feel</h4>
+                <p class="rev-comment">
+                  Very smooth gaming and multitasking. Official warranty card was included in the box. Highly recommended store.
+                </p>
+              </div>
+            } @else {
+              @for (rev of reviews; track rev.id) {
+                <div class="review-item-card">
+                  <div class="rev-top">
+                    <div class="rev-author">
+                      <div class="author-avatar"><i class="pi pi-user"></i></div>
+                      <div>
+                        <strong>{{ rev.name }}</strong>
+                        @if (rev.isVerified) {
+                          <span class="verified-badge"><i class="pi pi-check"></i> Verified Purchase</span>
+                        }
+                      </div>
+                    </div>
+                    <span class="rev-date">{{ rev.createdAt | date: 'mediumDate' }}</span>
+                  </div>
+                  <div class="rev-stars">
+                    @for (star of [1, 2, 3, 4, 5]; track star) {
+                      <i class="pi pi-star-fill" [class.star-gold]="star <= rev.rating" [class.star-gray]="star > rev.rating"></i>
+                    }
+                  </div>
+                  @if (rev.title) {
+                    <h4 class="rev-title">{{ rev.title }}</h4>
+                  }
+                  <p class="rev-comment">{{ rev.comment }}</p>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Tab 3: EMI Calculator -->
+      @if (activeTab === 'emi') {
+        <div class="tab-content emi-content">
+          <div class="emi-grid">
+            <div class="emi-card">
+              <span class="months-label">3 Months</span>
+              <span class="emi-amount">৳{{ emi3Months | number }} <small>/month</small></span>
+              <span class="emi-interest">0% Interest Rate</span>
+            </div>
+            <div class="emi-card featured">
+              <span class="badge-pop">Popular</span>
+              <span class="months-label">6 Months</span>
+              <span class="emi-amount">৳{{ emi6Months | number }} <small>/month</small></span>
+              <span class="emi-interest">0% Interest Rate</span>
+            </div>
+            <div class="emi-card">
+              <span class="months-label">12 Months</span>
+              <span class="emi-amount">৳{{ emi12Months | number }} <small>/month</small></span>
+              <span class="emi-interest">0% Interest Rate</span>
+            </div>
+            <div class="emi-card">
+              <span class="months-label">24 Months</span>
+              <span class="emi-amount">৳{{ emi24Months | number }} <small>/month</small></span>
+              <span class="emi-interest">Low monthly charge</span>
+            </div>
+          </div>
+          <p class="emi-terms">
+            * 0% EMI is available on major credit cards including City Bank, Eastern Bank (EBL), Standard Chartered, BRAC Bank, Dutch-Bangla Bank, and Prime Bank. Select 'Card' payment at checkout to activate EMI.
+          </p>
+        </div>
+      }
+    </div>
+
+    <!-- Similar Products Recommendation Carousel -->
+    @if (similarProducts.length > 0) {
+      <div class="similar-products-section">
+        <div class="section-title-row">
+          <h2>More from {{ product.brand.name }}</h2>
+          <a routerLink="/" [queryParams]="{ brand: product.brandId }" class="view-brand-link">View All &rarr;</a>
+        </div>
+        <div class="similar-grid">
+          @for (sim of similarProducts; track sim.id) {
+            <app-product-card [product]="sim"></app-product-card>
+          }
+        </div>
+      </div>
+    }
+  }
+</div>
+
+<!-- Write Review Dialog -->
+<p-dialog
+  header="Write a Customer Review"
+  [(visible)]="writeReviewModalOpen"
+  [modal]="true"
+  [style]="{ width: '90vw', maxWidth: '540px' }"
+  [draggable]="false"
+>
+  <form (ngSubmit)="submitReview()" class="write-review-form">
+    <div class="form-field">
+      <label>Overall Rating</label>
+      <div class="star-picker">
+        @for (star of [1, 2, 3, 4, 5]; track star) {
+          <i
+            class="pi pi-star-fill star-pick"
+            [class.active]="star <= reviewForm.rating"
+            (click)="reviewForm.rating = star"
+          ></i>
+        }
+        <span class="rating-text-label">{{ reviewForm.rating }} out of 5 Stars</span>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label>Your Name *</label>
+      <input type="text" pInputText [(ngModel)]="reviewForm.name" name="name" placeholder="e.g. Sajib" required />
+    </div>
+
+    <div class="form-field">
+      <label>Your Email *</label>
+      <input type="email" pInputText [(ngModel)]="reviewForm.email" name="email" placeholder="sajib@example.com" required />
+    </div>
+
+    <div class="form-field">
+      <label>Review Headline (Optional)</label>
+      <input type="text" pInputText [(ngModel)]="reviewForm.title" name="title" placeholder="e.g. Great camera and smooth display!" />
+    </div>
+
+    <div class="form-field">
+      <label>Your Detailed Review *</label>
+      <textarea
+        pInputTextarea
+        [(ngModel)]="reviewForm.comment"
+        name="comment"
+        rows="4"
+        placeholder="What did you like or dislike about this device? How is the camera, battery, and build quality?"
+        required
+      ></textarea>
+    </div>
+
+    <div class="dialog-actions">
+      <button type="button" pButton label="Cancel" class="p-button-text" (click)="writeReviewModalOpen = false"></button>
+      <button
+        type="submit"
+        pButton
+        label="Submit Review"
+        icon="pi pi-check"
+        [loading]="submittingReview"
+        class="p-button-primary"
+      ></button>
+    </div>
+  </form>
+</p-dialog>
+
+<!-- EMI Details Dialog -->
+<p-dialog
+  header="0% EMI Installment Plans"
+  [(visible)]="emiModalOpen"
+  [modal]="true"
+  [style]="{ width: '90vw', maxWidth: '600px' }"
+  [draggable]="false"
+>
+  <div class="emi-modal-body">
+    <p>Purchase <strong>{{ product?.title }}</strong> with 0% interest monthly installments.</p>
+    <div class="emi-breakdown-table">
+      <div class="emi-row">
+        <span>3 Months Tenure</span>
+        <strong>৳{{ emi3Months | number }}/mo</strong>
+        <span class="badge-free">0% Interest</span>
+      </div>
+      <div class="emi-row">
+        <span>6 Months Tenure</span>
+        <strong>৳{{ emi6Months | number }}/mo</strong>
+        <span class="badge-free">0% Interest</span>
+      </div>
+      <div class="emi-row">
+        <span>12 Months Tenure</span>
+        <strong>৳{{ emi12Months | number }}/mo</strong>
+        <span class="badge-free">0% Interest</span>
+      </div>
+      <div class="emi-row">
+        <span>24 Months Tenure</span>
+        <strong>৳{{ emi24Months | number }}/mo</strong>
+        <span>Low bank rate</span>
+      </div>
+    </div>
+    <div class="bank-partners-list">
+      <small>Partner Banks: City Bank, EBL, BRAC, DBBL, Standard Chartered, Prime Bank, UCB, MTBL</small>
+    </div>
+  </div>
+</p-dialog>
+
+<!-- Trade-In Calculator Dialog -->
+<p-dialog
+  header="Trade-In Old Phone Value Calculator"
+  [(visible)]="tradeInModalOpen"
+  [modal]="true"
+  [style]="{ width: '90vw', maxWidth: '540px' }"
+  [draggable]="false"
+>
+  <div class="tradein-modal-body">
+    <p>Exchange your current smartphone towards buying <strong>{{ product?.title }}</strong>.</p>
+
+    <div class="form-field">
+      <label>Current Phone Brand</label>
+      <select class="custom-select" [(ngModel)]="tradeInForm.brand" (change)="calculateTradeIn()">
+        <option value="Apple">Apple iPhone</option>
+        <option value="Samsung">Samsung Galaxy</option>
+        <option value="Google">Google Pixel</option>
+        <option value="Xiaomi">Xiaomi / Redmi</option>
+        <option value="Other">Other Brands</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label>Current Phone Condition</label>
+      <select class="custom-select" [(ngModel)]="tradeInForm.condition" (change)="calculateTradeIn()">
+        <option value="Flawless">Flawless (No scratches, all original)</option>
+        <option value="Good">Good (Minor scratches, fully functional)</option>
+        <option value="Fair">Fair (Noticeable scratches/scuffs, works)</option>
+      </select>
+    </div>
+
+    <div class="estimated-credit-box">
+      <span class="credit-label">Estimated Exchange Bonus Value</span>
+      <span class="credit-val">৳{{ estimatedTradeInValue | number }}</span>
+      <span class="net-price-calc">
+        You only pay: <strong>৳{{ (finalPrice - estimatedTradeInValue) | number }}</strong>
+      </span>
+    </div>
+
+    <button pButton label="Apply Exchange at Checkout" class="p-button-primary w-full" (click)="tradeInModalOpen = false; addToBag()"></button>
+  </div>
+</p-dialog>

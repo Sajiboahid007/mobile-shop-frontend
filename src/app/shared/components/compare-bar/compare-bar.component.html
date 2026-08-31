@@ -1,0 +1,42 @@
+@if (compare.count() > 0) {
+  <aside class="floating-compare-dock" aria-label="Device Comparison Dock">
+    <div class="page-container dock-inner">
+      <div class="dock-left">
+        <div class="dock-badge">
+          <i class="pi pi-sliders-h"></i>
+          <span>Compare ({{ compare.count() }}/{{ compare.maxLimit }})</span>
+        </div>
+        <div class="dock-items">
+          @for (p of compare.items(); track p.id) {
+            <div class="dock-pill">
+              <div class="pill-thumb">
+                <img [src]="getImage(p)" [alt]="p.title" />
+              </div>
+              <span class="pill-title">{{ p.title }}</span>
+              <button class="pill-remove" (click)="compare.removeFromCompare(p.id)" title="Remove">
+                <i class="pi pi-times"></i>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="dock-right">
+        <button
+          pButton
+          label="Clear"
+          class="p-button-text p-button-sm clear-btn"
+          (click)="compare.clearCompare()"
+        ></button>
+        <button
+          pButton
+          label="Compare Devices"
+          icon="pi pi-arrow-right"
+          iconPos="right"
+          class="p-button-primary compare-now-btn"
+          (click)="goToCompare()"
+        ></button>
+      </div>
+    </div>
+  </aside>
+}

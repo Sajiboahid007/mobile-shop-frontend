@@ -1,0 +1,52 @@
+<div class="filters-panel">
+  <div class="filters-header">
+    <h3>Filters</h3>
+    <button pButton class="p-button-text p-button-sm" label="Clear all" (click)="clearFilters()"></button>
+  </div>
+
+  <p-accordion [multiple]="true" [activeIndex]="[0, 1, 2]">
+    <p-accordionTab header="Category">
+      @if (categories.length === 0) {
+        <p class="empty-hint">No categories yet</p>
+      }
+      @for (cat of categories; track cat.id) {
+        <div class="filter-row">
+          <p-checkbox
+            [binary]="true"
+            [ngModel]="selectedCategoryIds.includes(cat.id)"
+            (ngModelChange)="toggleCategory(cat.id, $event)"
+            [inputId]="'cat-' + cat.id"
+          ></p-checkbox>
+          <label [for]="'cat-' + cat.id">{{ cat.name }} <span class="count">({{ cat._count?.products || 0 }})</span></label>
+        </div>
+      }
+    </p-accordionTab>
+
+    <p-accordionTab header="Brand">
+      @if (brands.length === 0) {
+        <p class="empty-hint">No brands yet</p>
+      }
+      @for (b of brands; track b.id) {
+        <div class="filter-row">
+          <p-checkbox
+            [binary]="true"
+            [ngModel]="selectedBrandIds.includes(b.id)"
+            (ngModelChange)="toggleBrand(b.id, $event)"
+            [inputId]="'brand-' + b.id"
+          ></p-checkbox>
+          <label [for]="'brand-' + b.id">{{ b.name }} <span class="count">({{ b._count?.products || 0 }})</span></label>
+        </div>
+      }
+    </p-accordionTab>
+
+    <p-accordionTab header="Price Range">
+      <div class="price-range">
+        <p-slider [(ngModel)]="priceRange" [range]="true" [min]="0" [max]="maxPriceLimit" [step]="500" (onSlideEnd)="onPriceChange()"></p-slider>
+        <div class="price-labels">
+          <span>৳{{ priceRange[0] | number }}</span>
+          <span>৳{{ priceRange[1] | number }}</span>
+        </div>
+      </div>
+    </p-accordionTab>
+  </p-accordion>
+</div>

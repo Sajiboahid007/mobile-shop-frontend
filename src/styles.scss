@@ -1,0 +1,48 @@
+/* Global styles */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: #f4f6f9;
+  color: #1f2937;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.page-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.text-price {
+  color: #16a34a;
+  font-weight: 700;
+}
+
+.text-strike {
+  text-decoration: line-through;
+  color: #9ca3af;
+  font-size: 0.85rem;
+  margin-right: 0.5rem;
+}
+
+/* Responsive helpers */
+@media (max-width: 768px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .hide-desktop {
+    display: none !important;
+  }
+}

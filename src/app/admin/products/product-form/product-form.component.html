@@ -1,0 +1,441 @@
+<p-toast></p-toast>
+
+<div class="page-header">
+  <h1 style="margin-left: 176px">
+    {{ isEditMode ? "Edit Product" : "Add Product" }}
+  </h1>
+  <a routerLink="/admin/products" class="back-link"
+    ><i class="pi pi-arrow-left"></i> Back to products</a
+  >
+</div>
+
+@if (loading) {
+  <div class="spinner-wrap">
+    <p-progressSpinner styleClass="w-3rem h-3rem"></p-progressSpinner>
+  </div>
+} @else {
+  <div class="form-card" style="margin-left: 176px">
+    <h3>Product Type</h3>
+    <div class="field-row">
+      <div class="field">
+        <label>Type</label>
+        <p-dropdown
+          [options]="typeOptions"
+          [(ngModel)]="type"
+          optionLabel="label"
+          optionValue="value"
+          [disabled]="isEditMode"
+          (onChange)="onTypeChange()"
+          styleClass="w-full"
+        ></p-dropdown>
+        @if (isEditMode) {
+          <small class="hint">Type cannot be changed after creation.</small>
+        }
+      </div>
+    </div>
+
+    <h3>Basic Information</h3>
+    <div class="field-row two-col">
+      <div class="field">
+        <label>Title *</label>
+        <input
+          pInputText
+          [(ngModel)]="title"
+          placeholder="e.g. iPhone 15 Pro Max"
+          class="w-full"
+        />
+      </div>
+      <div class="field">
+        <label>Brand *</label>
+        <p-dropdown
+          [options]="brands"
+          [(ngModel)]="brandId"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Select brand"
+          styleClass="w-full"
+        ></p-dropdown>
+      </div>
+    </div>
+
+    <div class="field-row two-col">
+      <div class="field">
+        <label>Category *</label>
+        <p-dropdown
+          [options]="categories"
+          [(ngModel)]="categoryId"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Select category"
+          styleClass="w-full"
+        ></p-dropdown>
+      </div>
+      <div class="field">
+        <label>Stock quantity</label>
+        <p-inputNumber
+          [(ngModel)]="stock"
+          [min]="0"
+          styleClass="w-full"
+          inputStyleClass="w-full"
+        ></p-inputNumber>
+      </div>
+    </div>
+
+    <div class="field-row two-col">
+      <div class="field">
+        <label>Price (৳) *</label>
+        <p-inputNumber
+          [(ngModel)]="price"
+          mode="decimal"
+          [minFractionDigits]="0"
+          [min]="0"
+          styleClass="w-full"
+          inputStyleClass="w-full"
+        ></p-inputNumber>
+      </div>
+      <div class="field">
+        <label>Discount price (৳)</label>
+        <p-inputNumber
+          [(ngModel)]="discountPrice"
+          mode="decimal"
+          [minFractionDigits]="0"
+          [min]="0"
+          styleClass="w-full"
+          inputStyleClass="w-full"
+        ></p-inputNumber>
+        @if (calculatedDiscountPercent > 0) {
+          <small class="discount-live-badge">
+            <i class="pi pi-tag"></i> Gives a <strong>-{{ calculatedDiscountPercent }}%</strong> badge on storefront (Savings: ৳{{ ((price || 0) - (discountPrice || 0)) | number }})
+          </small>
+        }
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Description</label>
+      <textarea
+        pInputTextarea
+        [(ngModel)]="description"
+        rows="4"
+        class="w-full"
+        placeholder="Short marketing description..."
+      ></textarea>
+    </div>
+
+    <div class="field">
+      <label>Available Product Colors</label>
+      <p-multiSelect
+        [options]="availableColors"
+        [(ngModel)]="selectedColorIds"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Select product colors (e.g. Titanium Black, Deep Purple...)"
+        display="chip"
+        styleClass="w-full"
+      >
+        <ng-template let-color pTemplate="item">
+          <div class="color-dropdown-item">
+            <span
+              class="dropdown-color-swatch"
+              [style.backgroundColor]="color.hexCode || '#cccccc'"
+            ></span>
+            <span>{{ color.name }}</span>
+            <small class="dropdown-hex-text">{{ color.hexCode }}</small>
+          </div>
+        </ng-template>
+      </p-multiSelect>
+      <small class="field-hint">
+        Need a new color? Add it in <a routerLink="/admin/colors" target="_blank">Admin &gt; Colors</a>.
+      </small>
+    </div>
+
+    <div class="field-row checkboxes">
+      <div class="check-field">
+        <p-checkbox
+          [binary]="true"
+          [(ngModel)]="isFlashDeal"
+          inputId="isFlashDeal"
+        ></p-checkbox>
+        <label for="isFlashDeal">⚡ <strong>Flash Deal of the Day</strong> (Feature on Homepage Flash Sale section)</label>
+      </div>
+      <div class="check-field">
+        <p-checkbox
+          [binary]="true"
+          [(ngModel)]="isUpcoming"
+          inputId="isUpcoming"
+        ></p-checkbox>
+        <label for="isUpcoming">Mark as upcoming (not yet released)</label>
+      </div>
+      <div class="check-field">
+        <p-checkbox
+          [binary]="true"
+          [(ngModel)]="isActive"
+          inputId="isActive"
+        ></p-checkbox>
+        <label for="isActive">Active (visible on website)</label>
+      </div>
+    </div>
+
+    @if (type === "PHONE") {
+      <h3>Smartphone Specifications</h3>
+      <div class="field-row two-col">
+        <div class="field">
+          <label>Processor</label
+          ><input pInputText [(ngModel)]="phone.processor" class="w-full" />
+        </div>
+        <div class="field">
+          <label>RAM</label
+          ><input
+            pInputText
+            [(ngModel)]="phone.ram"
+            placeholder="e.g. 8GB"
+            class="w-full"
+          />
+        </div>
+      </div>
+      <div class="field-row two-col">
+        <div class="field">
+          <label>Storage</label
+          ><input
+            pInputText
+            [(ngModel)]="phone.storage"
+            placeholder="e.g. 256GB"
+            class="w-full"
+          />
+        </div>
+        <div class="field">
+          <label>Display</label
+          ><input
+            pInputText
+            [(ngModel)]="phone.display"
+            placeholder='e.g. 6.7" AMOLED'
+            class="w-full"
+          />
+        </div>
+      </div>
+      <div class="field-row two-col">
+        <div class="field">
+          <label>Display Type</label
+          ><input pInputText [(ngModel)]="phone.displayType" class="w-full" />
+        </div>
+        <div class="field">
+          <label>Rear Camera</label
+          ><input
+            pInputText
+            [(ngModel)]="phone.camera"
+            placeholder="e.g. 50MP + 12MP"
+            class="w-full"
+          />
+        </div>
+      </div>
+      <div class="field-row two-col">
+        <div class="field">
+          <label>Front Camera</label
+          ><input pInputText [(ngModel)]="phone.frontCamera" class="w-full" />
+        </div>
+        <div class="field">
+          <label>Battery</label
+          ><input
+            pInputText
+            [(ngModel)]="phone.battery"
+            placeholder="e.g. 5000mAh"
+            class="w-full"
+          />
+        </div>
+      </div>
+      <div class="field-row two-col">
+        <div class="field">
+          <label>Operating System</label
+          ><input
+            pInputText
+            [(ngModel)]="phone.os"
+            placeholder="e.g. Android 14"
+            class="w-full"
+          />
+        </div>
+        <div class="field">
+          <label>Network</label
+          ><input
+            pInputText
+            [(ngModel)]="phone.network"
+            placeholder="e.g. 5G"
+            class="w-full"
+          />
+        </div>
+      </div>
+      <div class="field-row two-col">
+        <div class="field">
+          <label>Color</label
+          ><input pInputText [(ngModel)]="phone.color" class="w-full" />
+        </div>
+        <div class="field">
+          <label>Warranty</label
+          ><input
+            pInputText
+            [(ngModel)]="phone.warranty"
+            placeholder="e.g. 1 Year"
+            class="w-full"
+          />
+        </div>
+      </div>
+    } @else {
+      <h3>Laptop Specifications</h3>
+      <div class="field-row two-col">
+        <div class="field">
+          <label>Processor</label
+          ><input
+            pInputText
+            [(ngModel)]="laptop.processor"
+            placeholder="e.g. Intel Core i7-13700H"
+            class="w-full"
+          />
+        </div>
+        <div class="field">
+          <label>RAM</label
+          ><input
+            pInputText
+            [(ngModel)]="laptop.ram"
+            placeholder="e.g. 16GB"
+            class="w-full"
+          />
+        </div>
+      </div>
+      <div class="field-row two-col">
+        <div class="field">
+          <label>Storage</label
+          ><input
+            pInputText
+            [(ngModel)]="laptop.storage"
+            placeholder="e.g. 512GB"
+            class="w-full"
+          />
+        </div>
+        <div class="field">
+          <label>Storage Type</label
+          ><input
+            pInputText
+            [(ngModel)]="laptop.storageType"
+            placeholder="e.g. NVMe SSD"
+            class="w-full"
+          />
+        </div>
+      </div>
+      <div class="field-row two-col">
+        <div class="field">
+          <label>Display</label
+          ><input
+            pInputText
+            [(ngModel)]="laptop.display"
+            placeholder='e.g. 15.6" FHD 144Hz'
+            class="w-full"
+          />
+        </div>
+        <div class="field">
+          <label>Graphics</label
+          ><input
+            pInputText
+            [(ngModel)]="laptop.graphics"
+            placeholder="e.g. RTX 4060 6GB"
+            class="w-full"
+          />
+        </div>
+      </div>
+      <div class="field-row two-col">
+        <div class="field">
+          <label>Operating System</label
+          ><input
+            pInputText
+            [(ngModel)]="laptop.os"
+            placeholder="e.g. Windows 11"
+            class="w-full"
+          />
+        </div>
+        <div class="field">
+          <label>Battery</label
+          ><input
+            pInputText
+            [(ngModel)]="laptop.battery"
+            placeholder="e.g. 6-cell 70Wh"
+            class="w-full"
+          />
+        </div>
+      </div>
+      <div class="field-row two-col">
+        <div class="field">
+          <label>Weight</label
+          ><input
+            pInputText
+            [(ngModel)]="laptop.weight"
+            placeholder="e.g. 2.1 kg"
+            class="w-full"
+          />
+        </div>
+        <div class="field">
+          <label>Ports</label
+          ><input
+            pInputText
+            [(ngModel)]="laptop.ports"
+            placeholder="e.g. 2x USB-C, HDMI"
+            class="w-full"
+          />
+        </div>
+      </div>
+      <div class="field-row two-col">
+        <div class="field">
+          <label>Color</label
+          ><input pInputText [(ngModel)]="laptop.color" class="w-full" />
+        </div>
+        <div class="field">
+          <label>Warranty</label
+          ><input
+            pInputText
+            [(ngModel)]="laptop.warranty"
+            placeholder="e.g. 2 Years"
+            class="w-full"
+          />
+        </div>
+      </div>
+    }
+
+    <h3>Photos</h3>
+    @if (existingImages.length) {
+      <div class="existing-images">
+        @for (img of existingImages; track img.id) {
+          <div class="existing-image">
+            <img [src]="fileBase + img.url" alt="Product image" />
+            <button
+              pButton
+              icon="pi pi-times"
+              class="p-button-danger p-button-rounded p-button-sm remove-btn"
+              (click)="removeExistingImage(img.id)"
+            ></button>
+          </div>
+        }
+      </div>
+    }
+    <p-fileUpload
+      name="images"
+      [multiple]="true"
+      accept="image/*"
+      [maxFileSize]="5000000"
+      [auto]="false"
+      chooseLabel="Choose Photos"
+      (onSelect)="onFilesSelect($event)"
+      (onRemove)="onFileRemove($event)"
+      (onClear)="newFiles = []"
+    ></p-fileUpload>
+
+    <div class="form-actions">
+      <a routerLink="/admin/products">
+        <button pButton label="Cancel" class="p-button-text"></button>
+      </a>
+      <button
+        pButton
+        label="Save Product"
+        icon="pi pi-check"
+        [loading]="saving"
+        (click)="save()"
+      ></button>
+    </div>
+  </div>
+}

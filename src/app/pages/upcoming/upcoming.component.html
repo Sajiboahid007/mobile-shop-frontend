@@ -1,0 +1,21 @@
+<div class="page-container upcoming-page">
+  <h1>Upcoming Phones &amp; Laptops</h1>
+  <p class="subtitle">Get a sneak peek at what's launching soon.</p>
+
+  @if (loading) {
+    <div class="spinner-wrap">
+      <p-progressSpinner styleClass="w-3rem h-3rem"></p-progressSpinner>
+    </div>
+  } @else if (products.length === 0) {
+    <div class="empty-state">
+      <i class="pi pi-clock"></i>
+      <p>No upcoming products announced right now. Check back soon!</p>
+    </div>
+  } @else {
+    <div class="product-grid">
+      @for (p of products; track p.id) {
+        <app-product-card [product]="p"></app-product-card>
+      }
+    </div>
+  }
+</div>

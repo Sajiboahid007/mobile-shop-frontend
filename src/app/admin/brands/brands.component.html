@@ -1,0 +1,77 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="page-header">
+  <h1>Brands</h1>
+  <button pButton icon="pi pi-plus" label="Add Brand" (click)="openNew()"></button>
+</div>
+
+<p-table [value]="brands" [loading]="loading" dataKey="id" styleClass="p-datatable-sm">
+  <ng-template pTemplate="header">
+    <tr>
+      <th style="width: 80px">Logo</th>
+      <th>Name</th>
+      <th style="width: 120px">Products</th>
+      <th style="width: 140px">Actions</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-brand>
+    <tr>
+      <td>
+        @if (brand.logo) {
+          <img [src]="fileBase + brand.logo" [alt]="brand.name" class="logo-thumb" />
+        } @else {
+          <i class="pi pi-image no-logo"></i>
+        }
+      </td>
+      <td>{{ brand.name }}</td>
+      <td>{{ brand._count?.products || 0 }}</td>
+      <td>
+        <button pButton icon="pi pi-pencil" class="p-button-text p-button-sm" (click)="openEdit(brand)"></button>
+        <button
+          pButton
+          icon="pi pi-trash"
+          class="p-button-text p-button-sm p-button-danger"
+          (click)="confirmDelete(brand)"
+        ></button>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td colspan="4" class="empty-cell">No brands yet. Click "Add Brand" to create one.</td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<p-dialog
+  [(visible)]="dialogVisible"
+  [header]="editingBrand ? 'Edit Brand' : 'Add Brand'"
+  [modal]="true"
+  [style]="{ width: '420px' }"
+>
+  <div class="form-field">
+    <label for="brandName">Brand name</label>
+    <input id="brandName" pInputText [(ngModel)]="formName" placeholder="e.g. Apple" class="w-full" />
+  </div>
+
+  <div class="form-field">
+    <label>Logo image</label>
+    <p-fileUpload
+      mode="basic"
+      chooseLabel="Choose Logo"
+      accept="image/*"
+      [maxFileSize]="5000000"
+      [auto]="false"
+      (onSelect)="onFileSelect($event)"
+    ></p-fileUpload>
+    @if (editingBrand?.logo && !selectedFile) {
+      <img [src]="fileBase + editingBrand!.logo" class="preview" alt="current logo" />
+    }
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" class="p-button-text" (click)="dialogVisible = false"></button>
+    <button pButton label="Save" icon="pi pi-check" [loading]="saving" (click)="save()"></button>
+  </ng-template>
+</p-dialog>
