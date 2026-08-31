@@ -8,14 +8,63 @@
   </a>
 </div>
 
-<div class="filter-row">
-  <p-selectButton
-    [options]="typeFilterOptions"
-    [(ngModel)]="typeFilter"
-    optionLabel="label"
-    optionValue="value"
-    (onChange)="onTypeFilterChange()"
-  ></p-selectButton>
+<div class="filter-bar">
+  <!-- Type toggle -->
+  <div class="filter-group">
+    <label class="filter-label">Type</label>
+    <p-selectButton
+      [options]="typeFilterOptions"
+      [(ngModel)]="typeFilter"
+      optionLabel="label"
+      optionValue="value"
+      (onChange)="onTypeFilterChange()"
+    ></p-selectButton>
+  </div>
+
+  <!-- Brand dropdown -->
+  <div class="filter-group">
+    <label class="filter-label">Brand</label>
+    <p-dropdown
+      [options]="brandOptions"
+      [(ngModel)]="brandFilter"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="All Brands"
+      [showClear]="true"
+      (onChange)="onBrandFilterChange()"
+      (onClear)="onBrandFilterChange()"
+      styleClass="filter-dropdown"
+    ></p-dropdown>
+  </div>
+
+  <!-- Category dropdown -->
+  <div class="filter-group">
+    <label class="filter-label">Category</label>
+    <p-dropdown
+      [options]="categoryOptions"
+      [(ngModel)]="categoryFilter"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="All Categories"
+      [showClear]="true"
+      (onChange)="onCategoryFilterChange()"
+      (onClear)="onCategoryFilterChange()"
+      styleClass="filter-dropdown"
+    ></p-dropdown>
+  </div>
+
+  <!-- Clear filters -->
+  @if (hasActiveFilters) {
+    <div class="filter-group filter-clear">
+      <button
+        pButton
+        icon="pi pi-filter-slash"
+        label="Clear Filters"
+        class="p-button-outlined p-button-secondary p-button-sm"
+        (click)="clearFilters()"
+      ></button>
+    </div>
+  }
 </div>
 
 <p-table
@@ -82,7 +131,7 @@
   </ng-template>
   <ng-template pTemplate="emptymessage">
     <tr>
-      <td colspan="9" class="empty-cell">No products yet. Click "Add Product" to create one.</td>
+      <td colspan="9" class="empty-cell">No products found matching the selected filters.</td>
     </tr>
   </ng-template>
 </p-table>

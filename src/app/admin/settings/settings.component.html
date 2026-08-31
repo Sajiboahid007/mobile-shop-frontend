@@ -1,0 +1,126 @@
+<p-toast></p-toast>
+
+<div class="page-header">
+  <h1><i class="pi pi-cog"></i> Shop Settings</h1>
+  <button
+    pButton
+    icon="pi pi-save"
+    label="Save Changes"
+    [loading]="saving"
+    (click)="save()"
+    [disabled]="loading"
+  ></button>
+</div>
+
+@if (loading) {
+  <div class="loading-wrap">
+    <i class="pi pi-spin pi-spinner" style="font-size: 2rem; color: #6366f1;"></i>
+    <p>Loading settings…</p>
+  </div>
+} @else {
+
+  <!-- ── Section: Store Identity ─────────────────── -->
+  <div class="settings-card">
+    <div class="card-section-title">
+      <i class="pi pi-store"></i>
+      <span>Store Identity</span>
+    </div>
+    <hr class="section-divider">
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="shopName">Shop Name <span class="required">*</span></label>
+        <input id="shopName" type="text" pInputText [(ngModel)]="form.shopName" placeholder="e.g. MobileShop" />
+      </div>
+
+      <div class="field">
+        <label for="copyrightText">Copyright Text</label>
+        <input id="copyrightText" type="text" pInputText [(ngModel)]="form.copyrightText" placeholder="e.g. MobileShop Ltd. All rights reserved." />
+      </div>
+
+      <div class="field full">
+        <label for="tagline">Tagline / Bio <small>(shown in footer)</small></label>
+        <textarea
+          id="tagline"
+          pInputTextarea
+          [(ngModel)]="form.tagline"
+          rows="3"
+          placeholder="Bangladesh's premier destination for smartphones, laptops…"
+          [autoResize]="true"
+        ></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Section: Contact Information ───────────── -->
+  <div class="settings-card">
+    <div class="card-section-title">
+      <i class="pi pi-map-marker"></i>
+      <span>Contact & Location</span>
+    </div>
+    <hr class="section-divider">
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="email">Support Email</label>
+        <input id="email" type="email" pInputText [(ngModel)]="form.email" placeholder="support@mobileshop.com" />
+      </div>
+
+      <div class="field">
+        <label for="phone">Phone / Hotline</label>
+        <input id="phone" type="text" pInputText [(ngModel)]="form.phone" placeholder="+880 1700-000000" />
+      </div>
+
+      <div class="field">
+        <label for="address">Street Address</label>
+        <input id="address" type="text" pInputText [(ngModel)]="form.address" placeholder="Level 4, Jamuna Future Park" />
+      </div>
+
+      <div class="field">
+        <label for="city">City</label>
+        <input id="city" type="text" pInputText [(ngModel)]="form.city" placeholder="Dhaka" />
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Section: Social Media ───────────────────── -->
+  <div class="settings-card">
+    <div class="card-section-title">
+      <i class="pi pi-share-alt"></i>
+      <span>Social Media Links</span>
+    </div>
+    <hr class="section-divider">
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="facebook"><i class="pi pi-facebook social-icon facebook"></i> Facebook URL</label>
+        <input id="facebook" type="url" pInputText [(ngModel)]="form.facebookUrl" placeholder="https://facebook.com/yourpage" />
+      </div>
+
+      <div class="field">
+        <label for="twitter"><i class="pi pi-twitter social-icon twitter"></i> X / Twitter URL</label>
+        <input id="twitter" type="url" pInputText [(ngModel)]="form.twitterUrl" placeholder="https://twitter.com/yourhandle" />
+      </div>
+
+      <div class="field">
+        <label for="instagram"><i class="pi pi-instagram social-icon instagram"></i> Instagram URL</label>
+        <input id="instagram" type="url" pInputText [(ngModel)]="form.instagramUrl" placeholder="https://instagram.com/yourprofile" />
+      </div>
+
+      <div class="field">
+        <label for="youtube"><i class="pi pi-youtube social-icon youtube"></i> YouTube URL</label>
+        <input id="youtube" type="url" pInputText [(ngModel)]="form.youtubeUrl" placeholder="https://youtube.com/@yourchannel" />
+      </div>
+    </div>
+  </div>
+
+  <div class="save-bar">
+    <button
+      pButton
+      icon="pi pi-save"
+      label="Save All Changes"
+      [loading]="saving"
+      (click)="save()"
+    ></button>
+  </div>
+}

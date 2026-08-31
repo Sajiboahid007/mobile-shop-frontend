@@ -6,12 +6,15 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { DropdownModule } from 'primeng/dropdown';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
 import { ProductService } from '../../../core/services/product.service';
-import { Product, ProductType } from '../../../core/models/models';
+import { BrandService } from '../../../core/services/brand.service';
+import { CategoryService } from '../../../core/services/category.service';
+import { Product, ProductType, Brand, Category } from '../../../core/models/models';
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -25,6 +28,7 @@ import { environment } from '../../../../environments/environment';
     ButtonModule,
     TagModule,
     SelectButtonModule,
+    DropdownModule,
     ToastModule,
     ConfirmDialogModule,
   ],
@@ -40,6 +44,7 @@ export class ProductListComponent implements OnInit {
   rows = 10;
   fileBase = environment.fileBaseUrl;
 
+  // Type filter (select-button)
   typeFilterOptions = [
     { label: 'All', value: '' },
     { label: 'Smartphones', value: 'PHONE' as ProductType },
@@ -47,20 +52,90 @@ export class ProductListComponent implements OnInit {
   ];
   typeFilter: ProductType | '' = '';
 
+  // Brand filter — stores numeric ID (0 = All)
+  brandOptions: { label: string; value: number | null }[] = [];
+  brandFilter: number | null = null;
+
+  // Category filter — stores numeric ID (null = All)
+  allCategories: Category[] = [];
+  categoryOptions: { label: string; value: number | null }[] = [];
+  categoryFilter: number | null = null;
+
   constructor(
     private productService: ProductService,
+    private brandService: BrandService,
+    private categoryService: CategoryService,
     private router: Router,
     private confirmationService: ConfirmationService,
     private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
+    this.loadBrands();
+    this.loadCategories();
     this.load();
+  }
+
+  loadBrands(): void {
+    this.brandService.getBrands().subscribe({
+      next: (brands: Brand[]) => {
+        this.brandOptions = [
+          { label: 'All Brands', value: null },
+          ...brands.map((b) => ({ label: b.name, value: b.id })),
+        ];
+      },
+    });
+  }
+
+  loadCategories(type?: ProductType): void {
+    this.categoryService.getCategories(type).subscribe({
+      next: (cats: Category[]) => {
+        this.allCategories = cats;
+        this.buildCategoryOptions(cats);
+      },
+    });
+  }
+
+  private buildCategoryOptions(cats: Category[]): void {
+    this.categoryOptions = [
+      { label: 'All Categories', value: null },
+      ...cats.map((c) => ({ label: c.name, value: c.id })),
+    ];
   }
 
   onTypeFilterChange(): void {
     this.page = 1;
+    this.categoryFilter = null;
+    // Reload categories scoped to the selected type (or all if cleared)
+    const t = this.typeFilter as ProductType | undefined;
+    this.loadCategories(t || undefined);
     this.load();
+  }
+
+  onBrandFilterChange(): void {
+    // PrimeNG showClear sets value to undefined; normalise to null
+    if (this.brandFilter === undefined) this.brandFilter = null;
+    this.page = 1;
+    this.load();
+  }
+
+  onCategoryFilterChange(): void {
+    if (this.categoryFilter === undefined) this.categoryFilter = null;
+    this.page = 1;
+    this.load();
+  }
+
+  clearFilters(): void {
+    this.typeFilter = '';
+    this.brandFilter = null;
+    this.categoryFilter = null;
+    this.page = 1;
+    this.loadCategories();
+    this.load();
+  }
+
+  get hasActiveFilters(): boolean {
+    return !!(this.typeFilter || this.brandFilter !== null || this.categoryFilter !== null);
   }
 
   onPageChange(event: any): void {
@@ -74,6 +149,9 @@ export class ProductListComponent implements OnInit {
     this.productService
       .getProducts({
         type: this.typeFilter || undefined,
+        // Send numeric IDs — backend uses WHERE brandId IN (ids) / categoryId IN (ids)
+        brand: this.brandFilter ?? undefined,
+        category: this.categoryFilter ?? undefined,
         page: this.page,
         limit: this.rows,
         sort: 'newest',

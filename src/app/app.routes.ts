@@ -76,6 +76,11 @@ export const routes: Routes = [
           import('./admin/banners/banners.component').then((m) => m.BannersComponent),
       },
       {
+        path: 'settings',
+        loadComponent: () =>
+          import('./admin/settings/settings.component').then((m) => m.SettingsComponent),
+      },
+      {
         path: 'products',
         loadComponent: () =>
           import('./admin/products/product-list/product-list.component').then((m) => m.ProductListComponent),

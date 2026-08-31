@@ -5,10 +5,43 @@
   margin-bottom: 1.25rem;
 }
 
-.filter-row {
-  margin-bottom: 1rem;
+/* ── Filter Bar ─────────────────────────────── */
+.filter-bar {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.25rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
 }
 
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.filter-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+}
+
+.filter-clear {
+  justify-content: flex-end;
+  align-self: flex-end;
+}
+
+:host ::ng-deep .filter-dropdown {
+  min-width: 170px;
+}
+
+/* ── Table helpers ──────────────────────────── */
 .thumb {
   width: 40px;
   height: 40px;

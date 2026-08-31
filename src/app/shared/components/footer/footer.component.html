@@ -3,16 +3,30 @@
     <div class="footer-col brand-col">
       <div class="footer-brand">
         <i class="pi pi-mobile"></i>
-        <span>MobileShop</span>
+        <span>{{ shopName }}</span>
       </div>
-      <p class="brand-bio">
-        Bangladesh's premier destination for official smartphones, flagship devices, laptops, and authentic tech accessories.
-      </p>
+      <p class="brand-bio">{{ tagline }}</p>
       <div class="social-links">
-        <a href="javascript:void(0)"><i class="pi pi-facebook"></i></a>
-        <a href="javascript:void(0)"><i class="pi pi-twitter"></i></a>
-        <a href="javascript:void(0)"><i class="pi pi-instagram"></i></a>
-        <a href="javascript:void(0)"><i class="pi pi-youtube"></i></a>
+        @if (settings?.facebookUrl) {
+          <a [href]="settings!.facebookUrl" target="_blank" rel="noopener"><i class="pi pi-facebook"></i></a>
+        } @else {
+          <a href="javascript:void(0)"><i class="pi pi-facebook"></i></a>
+        }
+        @if (settings?.twitterUrl) {
+          <a [href]="settings!.twitterUrl" target="_blank" rel="noopener"><i class="pi pi-twitter"></i></a>
+        } @else {
+          <a href="javascript:void(0)"><i class="pi pi-twitter"></i></a>
+        }
+        @if (settings?.instagramUrl) {
+          <a [href]="settings!.instagramUrl" target="_blank" rel="noopener"><i class="pi pi-instagram"></i></a>
+        } @else {
+          <a href="javascript:void(0)"><i class="pi pi-instagram"></i></a>
+        }
+        @if (settings?.youtubeUrl) {
+          <a [href]="settings!.youtubeUrl" target="_blank" rel="noopener"><i class="pi pi-youtube"></i></a>
+        } @else {
+          <a href="javascript:void(0)"><i class="pi pi-youtube"></i></a>
+        }
       </div>
     </div>
 
@@ -34,9 +48,9 @@
 
     <div class="footer-col contact-col">
       <h4>Contact &amp; Stores</h4>
-      <p><i class="pi pi-map-marker"></i> Level 4, Jamuna Future Park, Dhaka</p>
-      <p><i class="pi pi-envelope"></i> support&#64;mobileshop.com</p>
-      <p><i class="pi pi-phone"></i> +880 1700-000000</p>
+      <p><i class="pi pi-map-marker"></i> {{ address }}</p>
+      <p><i class="pi pi-envelope"></i> {{ email }}</p>
+      <p><i class="pi pi-phone"></i> {{ phone }}</p>
       <div class="admin-portal-link">
         <a routerLink="/admin/login"><i class="pi pi-lock"></i> Merchant / Admin Portal</a>
       </div>
@@ -45,7 +59,7 @@
 
   <div class="footer-bottom">
     <div class="page-container bottom-inner">
-      <span>&copy; {{ year }} MobileShop Ltd. All rights reserved.</span>
+      <span>&copy; {{ year }} {{ copyright }}</span>
       <span class="payment-methods-text">
         <i class="pi pi-shield"></i> 100% Secure Checkout | COD &middot; bKash &middot; Nagad &middot; Visa &middot; Mastercard &middot; 0% EMI
       </span>

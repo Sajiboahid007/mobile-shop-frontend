@@ -217,7 +217,7 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   loadSimilarProducts(p: Product): void {
-    this.productService.getProducts({ brand: p.brandId.toString(), limit: 4 }).subscribe({
+    this.productService.getProducts({ brand: p.brandId, limit: 4 }).subscribe({
       next: (res) => {
         this.similarProducts = res.items.filter((item) => item.id !== p.id).slice(0, 3);
       },

@@ -176,7 +176,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.startCountdown();
     this.loadBanners();
 
-    this.brandService.getBrands().subscribe((b) => {
+    this.brandService.getBrands(this.selectedType).subscribe((b) => {
       this.allBrands = b;
       this.brands = b;
     });
@@ -279,7 +279,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.categoryService
       .getCategories(this.selectedType)
       .subscribe((c) => (this.categories = c));
-    this.brands = this.allBrands;
+    // Load brands scoped to the selected type so sidebar only shows relevant brands
+    this.brandService.getBrands(this.selectedType).subscribe((b) => {
+      this.allBrands = b;
+      this.brands = b;
+    });
   }
 
   loadFlashDeals(): void {

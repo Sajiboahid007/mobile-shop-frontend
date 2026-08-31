@@ -108,8 +108,8 @@ export interface Paginated<T> {
 
 export interface ProductQuery {
   type?: ProductType;
-  category?: string;
-  brand?: string;
+  category?: number | string;  // numeric ID or comma-separated IDs — backend parses via split(',')
+  brand?: number | string;     // numeric ID or comma-separated IDs — backend parses via split(',')
   minPrice?: number;
   maxPrice?: number;
   search?: string;
@@ -242,3 +242,18 @@ export interface Banner {
   updatedAt?: string;
 }
 
+export interface ShopSettings {
+  id: number;
+  shopName: string;
+  tagline?: string | null;
+  address?: string | null;
+  city?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  facebookUrl?: string | null;
+  twitterUrl?: string | null;
+  instagramUrl?: string | null;
+  youtubeUrl?: string | null;
+  copyrightText?: string | null;
+  updatedAt?: string;
+}

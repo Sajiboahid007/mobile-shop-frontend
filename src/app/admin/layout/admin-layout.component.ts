@@ -23,6 +23,7 @@ export class AdminLayoutComponent {
     { label: 'Categories', icon: 'pi pi-sitemap', link: '/admin/categories' },
     { label: 'Colors', icon: 'pi pi-palette', link: '/admin/colors' },
     { label: 'Banners', icon: 'pi pi-images', link: '/admin/banners' },
+    { label: 'Settings', icon: 'pi pi-cog', link: '/admin/settings' },
   ];
 
   constructor(public auth: AuthService, private router: Router) {}

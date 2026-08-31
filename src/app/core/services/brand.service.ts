@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Brand } from '../models/models';
+import { Brand, ProductType } from '../models/models';
 
 @Injectable({ providedIn: 'root' })
 export class BrandService {
@@ -10,8 +10,10 @@ export class BrandService {
 
   constructor(private http: HttpClient) {}
 
-  getBrands(): Observable<Brand[]> {
-    return this.http.get<Brand[]>(this.base);
+  getBrands(type?: ProductType): Observable<Brand[]> {
+    let params = new HttpParams();
+    if (type) params = params.set('type', type);
+    return this.http.get<Brand[]>(this.base, { params });
   }
 
   createBrand(formData: FormData): Observable<Brand> {
